@@ -1,0 +1,4 @@
+enum IdentityType {
+  student,
+  facultyDriver,
+}
