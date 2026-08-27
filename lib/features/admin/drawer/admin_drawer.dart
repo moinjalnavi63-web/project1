@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+
 import '../student_profiles/pages/admin_student_profiles_screen.dart';
 import '../bus_directory/pages/admin_bus_directory_screen.dart';
-import '../seat_allocator/pages/admin_seat_allocator_screen.dart';
 import '../seat_allocator/pages/admin_seat_allocator_screen.dart';
 import '../raise_token/pages/admin_raise_token_screen.dart';
 import '../student_directory/pages/admin_student_directory_screen.dart';
 import '../announcements/pages/admin_announcements_screen.dart';
+
+// IMPORTANT:
+// Change this import path if your LoginScreen is located elsewhere.
+import '../../authentication/presentation/pages/login_screen.dart';
+
 class AdminDrawer extends StatelessWidget {
   const AdminDrawer({super.key});
 
@@ -87,7 +92,8 @@ class AdminDrawer extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const AdminStudentProfilesScreen(),
+                          builder: (_) =>
+                          const AdminStudentProfilesScreen(),
                         ),
                       );
                     },
@@ -201,6 +207,7 @@ class AdminDrawer extends StatelessWidget {
                 Icons.logout,
                 color: Colors.red,
               ),
+
               title: const Text(
                 'Logout',
                 style: TextStyle(
@@ -208,12 +215,16 @@ class AdminDrawer extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
+
               onTap: () {
+                // Close the drawer first.
                 Navigator.pop(context);
 
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  '/login',
+                // Remove ALL previous pages and open LoginScreen.
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                    builder: (_) => const LoginScreen(),
+                  ),
                       (route) => false,
                 );
               },

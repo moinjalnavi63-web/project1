@@ -5,6 +5,9 @@ import 'driver_assigned_bus_screen.dart';
 import 'driver_assigned_route_screen.dart';
 import '../pages/driver_profile_screen.dart';
 
+// Login Screen
+import '../../../authentication/presentation/pages/login_screen.dart';
+
 class DriverDrawer extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onItemSelected;
@@ -57,7 +60,8 @@ class DriverDrawer extends StatelessWidget {
 
                   Expanded(
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment:
+                      MainAxisAlignment.center,
                       crossAxisAlignment:
                       CrossAxisAlignment.start,
                       children: const [
@@ -148,6 +152,10 @@ class DriverDrawer extends StatelessWidget {
 
             const Divider(),
 
+            // =====================================================
+            // LOGOUT
+            // =====================================================
+
             DriverDrawerTile(
               title: "Logout",
               icon: Icons.logout,
@@ -155,11 +163,11 @@ class DriverDrawer extends StatelessWidget {
               onTap: () {
                 Navigator.pop(context);
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Logout will be implemented later"),
-                    duration: Duration(seconds: 1),
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                    builder: (_) => const LoginScreen(),
                   ),
+                      (route) => false,
                 );
               },
             ),
@@ -195,7 +203,8 @@ class DriverDrawerTile extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: selected
-            ? const Color(0xFF5B5FEF).withValues(alpha: 0.12)
+            ? const Color(0xFF5B5FEF)
+            .withValues(alpha: 0.12)
             : Colors.transparent,
         borderRadius: BorderRadius.circular(14),
       ),

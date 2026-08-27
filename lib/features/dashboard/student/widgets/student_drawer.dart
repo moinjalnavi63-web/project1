@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+
 import '../../../bus_directory/pages/bus_directory_screen.dart';
 import '../../../student_directory/pages/student_directory_screen.dart';
+
+// Login Screen
+import '../../../authentication/presentation/pages/login_screen.dart';
+
 class StudentDrawer extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onItemSelected;
@@ -16,7 +21,6 @@ class StudentDrawer extends StatelessWidget {
     return Drawer(
       child: Column(
         children: [
-
           Container(
             width: double.infinity,
             padding: const EdgeInsets.only(
@@ -38,8 +42,7 @@ class StudentDrawer extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
-                // Back Button (Top Left)
+                // Back Button
                 IconButton(
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
@@ -90,7 +93,6 @@ class StudentDrawer extends StatelessWidget {
             ),
           ),
 
-
           _drawerItem(
             icon: Icons.person_outline,
             title: "Profile",
@@ -127,54 +129,47 @@ class StudentDrawer extends StatelessWidget {
             index: 6,
           ),
 
-
-
-        ListTile(
-          selected: selectedIndex == 8,
-
-          selectedTileColor:
-          const Color(0xFFEDE9FE),
-
-          leading: Icon(
-            Icons.people_outline,
-
-            color: selectedIndex == 8
-                ? const Color(0xFF5B5FEF)
-                : Colors.black87,
-          ),
-
-          title: Text(
-            "Student Directory",
-
-            style: TextStyle(
-              fontWeight: selectedIndex == 8
-                  ? FontWeight.bold
-                  : FontWeight.w500,
-
+          ListTile(
+            selected: selectedIndex == 8,
+            selectedTileColor: const Color(0xFFEDE9FE),
+            leading: Icon(
+              Icons.people_outline,
               color: selectedIndex == 8
                   ? const Color(0xFF5B5FEF)
                   : Colors.black87,
             ),
-          ),
-
-          onTap: () {
-            Navigator.pop(context);
-
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) =>
-                const StudentDirectoryScreen(
-                  role: "student",
-                ),
+            title: Text(
+              "Student Directory",
+              style: TextStyle(
+                fontWeight: selectedIndex == 8
+                    ? FontWeight.bold
+                    : FontWeight.w500,
+                color: selectedIndex == 8
+                    ? const Color(0xFF5B5FEF)
+                    : Colors.black87,
               ),
-            );
-          },
-        ),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const StudentDirectoryScreen(
+                    role: "student",
+                  ),
+                ),
+              );
+            },
+          ),
 
           const Spacer(),
 
           const Divider(),
+
+          // =====================================================
+          // LOGOUT
+          // =====================================================
 
           ListTile(
             leading: const Icon(
@@ -191,10 +186,11 @@ class StudentDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pop(context);
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Logout feature coming soon"),
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                  builder: (_) => const LoginScreen(),
                 ),
+                    (route) => false,
               );
             },
           ),

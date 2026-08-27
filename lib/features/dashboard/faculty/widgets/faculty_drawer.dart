@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
-class FacultyDrawer extends StatelessWidget {
+// Login Screen
+import '../../../authentication/presentation/pages/login_screen.dart';
 
+class FacultyDrawer extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onItemSelected;
 
@@ -13,53 +15,38 @@ class FacultyDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Drawer(
-
       child: Column(
         children: [
-
           Container(
             width: double.infinity,
-
             padding: const EdgeInsets.only(
               top: 45,
               left: 16,
               right: 16,
               bottom: 20,
             ),
-
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-
                 colors: [
                   Color(0xFF5B5FEF),
                   Color(0xFF7C83FD),
                 ],
               ),
             ),
-
             child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
-
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 IconButton(
                   padding: EdgeInsets.zero,
-                  constraints:
-                  const BoxConstraints(),
-
-                  alignment:
-                  Alignment.centerLeft,
-
+                  constraints: const BoxConstraints(),
+                  alignment: Alignment.centerLeft,
                   icon: const Icon(
                     Icons.arrow_back,
                     color: Colors.white,
                   ),
-
                   onPressed: () {
                     Navigator.pop(context);
                     onItemSelected(-1);
@@ -70,15 +57,11 @@ class FacultyDrawer extends StatelessWidget {
 
                 const CircleAvatar(
                   radius: 35,
-
-                  backgroundColor:
-                  Colors.white,
-
+                  backgroundColor: Colors.white,
                   child: Icon(
                     Icons.person,
                     size: 40,
-                    color:
-                    Color(0xFF5B5FEF),
+                    color: Color(0xFF5B5FEF),
                   ),
                 ),
 
@@ -86,12 +69,10 @@ class FacultyDrawer extends StatelessWidget {
 
                 const Text(
                   "Faculty Name",
-
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
-                    fontWeight:
-                    FontWeight.bold,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
 
@@ -99,7 +80,6 @@ class FacultyDrawer extends StatelessWidget {
 
                 const Text(
                   "Faculty ID",
-
                   style: TextStyle(
                     color: Colors.white70,
                     fontSize: 15,
@@ -116,15 +96,13 @@ class FacultyDrawer extends StatelessWidget {
           ),
 
           _drawerItem(
-            icon:
-            Icons.directions_bus_outlined,
+            icon: Icons.directions_bus_outlined,
             title: "Bus Directory",
             index: 2,
           ),
 
           _drawerItem(
-            icon:
-            Icons.event_seat_outlined,
+            icon: Icons.event_seat_outlined,
             title: "Seat Allocator",
             index: 3,
           ),
@@ -136,15 +114,13 @@ class FacultyDrawer extends StatelessWidget {
           ),
 
           _drawerItem(
-            icon:
-            Icons.location_on_outlined,
+            icon: Icons.location_on_outlined,
             title: "Live GPS Tracking",
             index: 5,
           ),
 
           _drawerItem(
-            icon:
-            Icons.confirmation_number_outlined,
+            icon: Icons.confirmation_number_outlined,
             title: "Raise Token",
             index: 6,
           ),
@@ -153,33 +129,30 @@ class FacultyDrawer extends StatelessWidget {
 
           const Divider(),
 
+          // =====================================================
+          // LOGOUT
+          // =====================================================
+
           ListTile(
             leading: const Icon(
               Icons.logout,
               color: Colors.red,
             ),
-
             title: const Text(
               "Logout",
-
               style: TextStyle(
                 color: Colors.red,
-                fontWeight:
-                FontWeight.bold,
+                fontWeight: FontWeight.bold,
               ),
             ),
-
             onTap: () {
               Navigator.pop(context);
 
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    "Logout feature coming soon",
-                  ),
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                  builder: (_) => const LoginScreen(),
                 ),
+                    (route) => false,
               );
             },
           ),
@@ -195,39 +168,27 @@ class FacultyDrawer extends StatelessWidget {
     required String title,
     required int index,
   }) {
-
-    final bool selected =
-        selectedIndex == index;
+    final bool selected = selectedIndex == index;
 
     return ListTile(
-
       selected: selected,
-
-      selectedTileColor:
-      const Color(0xFFEDE9FE),
-
+      selectedTileColor: const Color(0xFFEDE9FE),
       leading: Icon(
         icon,
-
         color: selected
             ? const Color(0xFF5B5FEF)
             : Colors.black87,
       ),
-
       title: Text(
         title,
-
         style: TextStyle(
-          fontWeight: selected
-              ? FontWeight.bold
-              : FontWeight.w500,
-
+          fontWeight:
+          selected ? FontWeight.bold : FontWeight.w500,
           color: selected
               ? const Color(0xFF5B5FEF)
               : Colors.black87,
         ),
       ),
-
       onTap: () {
         onItemSelected(index);
       },
