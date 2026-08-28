@@ -8,6 +8,9 @@ import '../widgets/driver_assigned_bus_screen.dart';
 import '../widgets/driver_assigned_route_screen.dart';
 import 'driver_profile_screen.dart';
 
+// GPS
+import 'driver_gps_screen.dart';
+
 class DriverDashboardScreen extends StatefulWidget {
   const DriverDashboardScreen({super.key});
 
@@ -46,9 +49,7 @@ class _DriverDashboardScreenState
       const Center(
         child: Text("Bus Student Group"),
       ),
-      const Center(
-        child: Text("Live GPS Sharing"),
-      ),
+      const DriverGpsScreen(),
       const Center(
         child: Text("Trip Status"),
       ),

@@ -7,6 +7,7 @@ import '../../../profile/faculty/pages/faculty_profile_screen.dart';
 import '../../../bus_directory/pages/bus_directory_screen.dart';
 import '../pages/faculty_seat_allocator_screen.dart';
 import '../../../raise_token/screens/raise_token_screen.dart';
+import '../../../gps_tracking/pages/live_gps_tracking_screen.dart';
 
 class FacultyDashboardScreen extends StatefulWidget {
   const FacultyDashboardScreen({super.key});
@@ -37,16 +38,7 @@ class _FacultyDashboardScreenState
       ),
     ),
 
-    Center(
-      child: Text(
-        "Live GPS Tracking",
-        style: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    ),
-
+    const LiveGpsTrackingScreen(),
     RaiseTokenScreen(),
 
     Center(

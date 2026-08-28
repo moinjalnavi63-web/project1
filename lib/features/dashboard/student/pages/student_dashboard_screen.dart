@@ -7,7 +7,7 @@ import '../../../seat_allocator/pages/seat_allocator_screen.dart';
 import '../../../profile/student/pages/student_profile_screen.dart';
 import '../../../bus_directory/pages/bus_directory_screen.dart';
 import '../../../raise_token/screens/raise_token_screen.dart';
-
+import '../../../gps_tracking/pages/live_gps_tracking_screen.dart';
 class StudentDashboardScreen extends StatefulWidget {
   const StudentDashboardScreen({super.key});
 
@@ -29,9 +29,7 @@ class _StudentDashboardScreenState
     Center(
       child: Text("Bus Group"),
     ),
-    Center(
-      child: Text("Live GPS Tracking"),
-    ),
+    const LiveGpsTrackingScreen(),
     RaiseTokenScreen(),
     Center(
       child: Text("Announcements"),

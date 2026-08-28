@@ -7,6 +7,12 @@ import '../raise_token/pages/admin_raise_token_screen.dart';
 import '../student_directory/pages/admin_student_directory_screen.dart';
 import '../announcements/pages/admin_announcements_screen.dart';
 
+// ==========================================================
+// GPS TRACKING
+// ==========================================================
+
+import '../../gps_tracking/pages/admin_gps_tracking_screen.dart';
+
 // IMPORTANT:
 // Change this import path if your LoginScreen is located elsewhere.
 import '../../authentication/presentation/pages/login_screen.dart';
@@ -20,13 +26,16 @@ class AdminDrawer extends StatelessWidget {
       child: SafeArea(
         child: Column(
           children: [
+
             // ==========================
             // HEADER
             // ==========================
 
             Container(
               width: double.infinity,
+
               padding: const EdgeInsets.all(22),
+
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -35,12 +44,19 @@ class AdminDrawer extends StatelessWidget {
                   ],
                 ),
               ),
+
               child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+
                 children: [
+
                   CircleAvatar(
                     radius: 30,
-                    backgroundColor: Colors.white,
+
+                    backgroundColor:
+                    Colors.white,
+
                     child: Icon(
                       Icons.admin_panel_settings,
                       size: 34,
@@ -52,10 +68,12 @@ class AdminDrawer extends StatelessWidget {
 
                   Text(
                     'KUTS Admin',
+
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      fontWeight:
+                      FontWeight.bold,
                     ),
                   ),
 
@@ -63,6 +81,7 @@ class AdminDrawer extends StatelessWidget {
 
                   Text(
                     'Transport Management',
+
                     style: TextStyle(
                       color: Colors.white70,
                       fontSize: 13,
@@ -81,16 +100,29 @@ class AdminDrawer extends StatelessWidget {
             Expanded(
               child: ListView(
                 padding: EdgeInsets.zero,
+
                 children: [
+
+                  // ==================================================
+                  // STUDENT PROFILES
+                  // ==================================================
+
                   _drawerItem(
                     context,
-                    icon: Icons.people_outline,
-                    title: 'Student Profiles',
+
+                    icon:
+                    Icons.people_outline,
+
+                    title:
+                    'Student Profiles',
+
                     onTap: () {
+
                       Navigator.pop(context);
 
                       Navigator.push(
                         context,
+
                         MaterialPageRoute(
                           builder: (_) =>
                           const AdminStudentProfilesScreen(),
@@ -99,15 +131,26 @@ class AdminDrawer extends StatelessWidget {
                     },
                   ),
 
+                  // ==================================================
+                  // BUS DIRECTORY
+                  // ==================================================
+
                   _drawerItem(
                     context,
-                    icon: Icons.directions_bus_outlined,
-                    title: 'Bus Directory',
+
+                    icon:
+                    Icons.directions_bus_outlined,
+
+                    title:
+                    'Bus Directory',
+
                     onTap: () {
+
                       Navigator.pop(context);
 
                       Navigator.push(
                         context,
+
                         MaterialPageRoute(
                           builder: (_) =>
                           const AdminBusDirectoryScreen(),
@@ -116,15 +159,26 @@ class AdminDrawer extends StatelessWidget {
                     },
                   ),
 
+                  // ==================================================
+                  // SEAT ALLOCATOR
+                  // ==================================================
+
                   _drawerItem(
                     context,
-                    icon: Icons.event_seat_outlined,
-                    title: 'Seat Allocator',
+
+                    icon:
+                    Icons.event_seat_outlined,
+
+                    title:
+                    'Seat Allocator',
+
                     onTap: () {
+
                       Navigator.pop(context);
 
                       Navigator.push(
                         context,
+
                         MaterialPageRoute(
                           builder: (_) =>
                           const AdminSeatAllocatorScreen(),
@@ -133,15 +187,26 @@ class AdminDrawer extends StatelessWidget {
                     },
                   ),
 
+                  // ==================================================
+                  // RAISE TOKEN
+                  // ==================================================
+
                   _drawerItem(
                     context,
-                    icon: Icons.confirmation_number_outlined,
-                    title: 'Raise Token',
+
+                    icon:
+                    Icons.confirmation_number_outlined,
+
+                    title:
+                    'Raise Token',
+
                     onTap: () {
+
                       Navigator.pop(context);
 
                       Navigator.push(
                         context,
+
                         MaterialPageRoute(
                           builder: (_) =>
                           const AdminRaiseTokenScreen(),
@@ -150,15 +215,26 @@ class AdminDrawer extends StatelessWidget {
                     },
                   ),
 
+                  // ==================================================
+                  // STUDENT DIRECTORY
+                  // ==================================================
+
                   _drawerItem(
                     context,
-                    icon: Icons.groups_outlined,
-                    title: 'Student Directory',
+
+                    icon:
+                    Icons.groups_outlined,
+
+                    title:
+                    'Student Directory',
+
                     onTap: () {
+
                       Navigator.pop(context);
 
                       Navigator.push(
                         context,
+
                         MaterialPageRoute(
                           builder: (_) =>
                           const AdminStudentDirectoryScreen(),
@@ -167,15 +243,26 @@ class AdminDrawer extends StatelessWidget {
                     },
                   ),
 
+                  // ==================================================
+                  // ANNOUNCEMENTS
+                  // ==================================================
+
                   _drawerItem(
                     context,
-                    icon: Icons.campaign_outlined,
-                    title: 'Announcements',
+
+                    icon:
+                    Icons.campaign_outlined,
+
+                    title:
+                    'Announcements',
+
                     onTap: () {
+
                       Navigator.pop(context);
 
                       Navigator.push(
                         context,
+
                         MaterialPageRoute(
                           builder: (_) =>
                           const AdminAnnouncementsScreen(),
@@ -184,11 +271,49 @@ class AdminDrawer extends StatelessWidget {
                     },
                   ),
 
+                  // ==================================================
+                  // LIVE GPS TRACKING
+                  // ==================================================
+
                   _drawerItem(
                     context,
-                    icon: Icons.settings_outlined,
-                    title: 'Settings',
+
+                    icon:
+                    Icons.location_on_outlined,
+
+                    title:
+                    'Live GPS Tracking',
+
                     onTap: () {
+
+                      Navigator.pop(context);
+
+                      Navigator.push(
+                        context,
+
+                        MaterialPageRoute(
+                          builder: (_) =>
+                          const AdminGpsTrackingScreen(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  // ==================================================
+                  // SETTINGS
+                  // ==================================================
+
+                  _drawerItem(
+                    context,
+
+                    icon:
+                    Icons.settings_outlined,
+
+                    title:
+                    'Settings',
+
+                    onTap: () {
+
                       Navigator.pop(context);
                     },
                   ),
@@ -210,21 +335,31 @@ class AdminDrawer extends StatelessWidget {
 
               title: const Text(
                 'Logout',
+
                 style: TextStyle(
                   color: Colors.red,
-                  fontWeight: FontWeight.w600,
+                  fontWeight:
+                  FontWeight.w600,
                 ),
               ),
 
               onTap: () {
-                // Close the drawer first.
+
+                // Close drawer.
+
                 Navigator.pop(context);
 
-                // Remove ALL previous pages and open LoginScreen.
-                Navigator.of(context).pushAndRemoveUntil(
+                // Remove all previous screens
+                // and open LoginScreen.
+
+                Navigator.of(context)
+                    .pushAndRemoveUntil(
+
                   MaterialPageRoute(
-                    builder: (_) => const LoginScreen(),
+                    builder: (_) =>
+                    const LoginScreen(),
                   ),
+
                       (route) => false,
                 );
               },
@@ -237,19 +372,32 @@ class AdminDrawer extends StatelessWidget {
     );
   }
 
+  // ==========================================================
+  // DRAWER ITEM
+  // ==========================================================
+
   Widget _drawerItem(
       BuildContext context, {
+
         required IconData icon,
+
         required String title,
+
         required VoidCallback onTap,
+
       }) {
+
     return ListTile(
+
       leading: Icon(icon),
+
       title: Text(title),
+
       trailing: const Icon(
         Icons.chevron_right,
         size: 20,
       ),
+
       onTap: onTap,
     );
   }
