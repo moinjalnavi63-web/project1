@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../widgets/student_profile_header.dart';
 import '../widgets/student_info_card.dart';
 import '../widgets/student_bus_card.dart';
-
+import '../../../gps_tracking/widgets/live_bus_route_map.dart';
+import '../../../gps_tracking/widgets/live_bus_route_map.dart';
+import '../../../gps_tracking/pages/hospet_route_data.dart';
 class StudentProfileScreen extends StatelessWidget {
   const StudentProfileScreen({super.key});
 
@@ -58,10 +60,20 @@ class StudentProfileScreen extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                const SizedBox(height: 20),
+
 
                 const SizedBox(height: 12),
 
                 const StudentBusCard(),
+                const SizedBox(height: 20),
+
+                const LiveBusRouteMap(
+                  busNumber: 'Bus 01',
+                  routeName: 'Hospet Route',
+                  stops: hospetRouteStops,
+                ),
+
 
                 const SizedBox(height: 30),
               ],

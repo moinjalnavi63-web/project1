@@ -5,10 +5,19 @@ import '../widgets/admin_stat_card.dart';
 import '../widgets/announcement_card.dart';
 import '../../announcements/pages/announcement_details_screen.dart';
 
+// ============================================================
+// STUDENT PROFILES
+// Same Student Profiles screen used by Admin Drawer
+// ============================================================
+
+import '../../student_profiles/pages/admin_student_profiles_screen.dart';
+
 // IMPORTANT:
 // This must point to the SAME demo_announcements.dart
 // used by admin_announcement_screen.dart.
 import '../../announcements/data/demo_announcements.dart';
+import '../../bus_directory/pages/admin_bus_directory_screen.dart';
+import '../../raise_token/pages/admin_raise_token_screen.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -128,24 +137,60 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         physics:
                         const NeverScrollableScrollPhysics(),
                         childAspectRatio: 1.15,
-                        children: const [
-                          AdminStatCard(
-                            title: 'Students',
-                            value: '1,250',
-                            subtitle: 'Registered students',
-                            icon: Icons.people_alt_outlined,
-                            color: Colors.blue,
+                        children: [
+                          // ============================================
+                          // STUDENTS
+                          // CLICK → STUDENT PROFILES
+                          // ============================================
+
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                  const AdminStudentProfilesScreen(),
+                                ),
+                              );
+                            },
+                            child: const AdminStatCard(
+                              title: 'Students',
+                              value: '1,250',
+                              subtitle: 'Registered students',
+                              icon: Icons.people_alt_outlined,
+                              color: Colors.blue,
+                            ),
                           ),
 
-                          AdminStatCard(
-                            title: 'Buses',
-                            value: '24',
-                            subtitle: 'Active buses',
-                            icon: Icons.directions_bus_outlined,
-                            color: Colors.green,
+                          // ============================================
+                          // BUSES
+                          // CLICK → BUS DIRECTORY
+                          // ============================================
+
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const AdminBusDirectoryScreen(),
+                                ),
+                              );
+                            },
+                            child: const AdminStatCard(
+                              title: 'Buses',
+                              value: '24',
+                              subtitle: 'Active buses',
+                              icon: Icons.directions_bus_outlined,
+                              color: Colors.green,
+                            ),
                           ),
 
-                          AdminStatCard(
+                          // ============================================
+                          // OCCUPIED SEATS
+                          // UNCHANGED
+                          // ============================================
+
+                          const AdminStatCard(
                             title: 'Occupied Seats',
                             value: '1,080',
                             subtitle: 'Currently occupied',
@@ -153,13 +198,27 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             color: Colors.orange,
                           ),
 
-                          AdminStatCard(
-                            title: 'Pending Tokens',
-                            value: '18',
-                            subtitle: 'Need attention',
-                            icon:
-                            Icons.confirmation_number_outlined,
-                            color: Colors.red,
+                          // ============================================
+                          // PENDING TOKENS
+                          // CLICK → ADMIN TOKEN MANAGEMENT
+                          // ============================================
+
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const AdminRaiseTokenScreen(),
+                                ),
+                              );
+                            },
+                            child: const AdminStatCard(
+                              title: 'Pending Tokens',
+                              value: '18',
+                              subtitle: 'Need attention',
+                              icon: Icons.confirmation_number_outlined,
+                              color: Colors.red,
+                            ),
                           ),
                         ],
                       ),

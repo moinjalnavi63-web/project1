@@ -74,14 +74,6 @@ class StudentProfileHeader extends StatelessWidget {
 
           const SizedBox(height: 20),
 
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.edit),
-              label: const Text("Edit Profile"),
-            ),
-          ),
 
         ],
       ),
