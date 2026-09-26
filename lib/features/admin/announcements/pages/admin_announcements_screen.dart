@@ -33,50 +33,76 @@ class _AdminAnnouncementsScreenState
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => const CreateAnnouncementScreen(),
+        builder: (_) =>
+        const CreateAnnouncementScreen(),
       ),
     );
 
     if (result is AnnouncementData) {
       setState(() {
-        demoAnnouncements.insert(0, result);
+        demoAnnouncements.insert(
+          0,
+          result,
+        );
       });
     }
   }
 
   void _deleteAnnouncement(int index) {
-    final announcement = filteredAnnouncements[index];
+    final announcement =
+    filteredAnnouncements[index];
 
     final actualIndex =
-    demoAnnouncements.indexOf(announcement);
+    demoAnnouncements.indexOf(
+      announcement,
+    );
 
     showDialog(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Delete Announcement?'),
+          title: const Text(
+            'Delete Announcement?',
+          ),
           content: const Text(
             'This announcement will be removed from the admin announcement list.',
           ),
           actions: [
+
             TextButton(
               onPressed: () {
-                Navigator.pop(dialogContext);
+                Navigator.pop(
+                  dialogContext,
+                );
               },
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.red,
+              child: const Text(
+                'Cancel',
               ),
+            ),
+
+            FilledButton(
+              style:
+              FilledButton.styleFrom(
+                backgroundColor:
+                Colors.red,
+              ),
+
               onPressed: () {
                 setState(() {
-                  demoAnnouncements.removeAt(actualIndex);
+                  demoAnnouncements
+                      .removeAt(
+                    actualIndex,
+                  );
                 });
 
-                Navigator.pop(dialogContext);
+                Navigator.pop(
+                  dialogContext,
+                );
               },
-              child: const Text('Delete'),
+
+              child: const Text(
+                'Delete',
+              ),
             ),
           ],
         );
@@ -86,94 +112,145 @@ class _AdminAnnouncementsScreenState
 
   @override
   Widget build(BuildContext context) {
-    final announcements = filteredAnnouncements;
+    final announcements =
+        filteredAnnouncements;
 
     return Scaffold(
-      backgroundColor: const Color(0xfff4f7fb),
+      backgroundColor:
+      const Color(0xfff4f7fb),
+
       appBar: AppBar(
         title: const Text(
           'Announcements',
           style: TextStyle(
-            fontWeight: FontWeight.bold,
+            fontWeight:
+            FontWeight.bold,
           ),
         ),
+
         centerTitle: false,
-        backgroundColor: Colors.transparent,
+
+        backgroundColor:
+        Colors.transparent,
+
         elevation: 0,
+
         actions: [
           IconButton(
-            tooltip: 'Create Announcement',
-            onPressed: _openCreateAnnouncement,
+            tooltip:
+            'Create Announcement',
+
+            onPressed:
+            _openCreateAnnouncement,
+
             icon: const Icon(
               Icons.add_circle_outline,
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _openCreateAnnouncement,
-        icon: const Icon(Icons.campaign_outlined),
-        label: const Text('Create'),
+
+      floatingActionButton:
+      FloatingActionButton.extended(
+        onPressed:
+        _openCreateAnnouncement,
+
+        icon: const Icon(
+          Icons.campaign_outlined,
+        ),
+
+        label: const Text(
+          'Create',
+        ),
       ),
+
       body: Container(
-        decoration: const BoxDecoration(
+        decoration:
+        const BoxDecoration(
           gradient: LinearGradient(
             colors: [
               Color(0xffd1fae5),
               Color(0xffe0e7ff),
               Color(0xffcffafe),
             ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin:
+            Alignment.topLeft,
+            end:
+            Alignment.bottomRight,
           ),
         ),
+
         child: SafeArea(
           top: false,
+
           child: Column(
             children: [
+
               _header(),
 
-              const SizedBox(height: 12),
+              const SizedBox(
+                height: 12,
+              ),
 
               _filterBar(),
 
-              const SizedBox(height: 12),
+              const SizedBox(
+                height: 12,
+              ),
 
               Expanded(
                 child: announcements.isEmpty
                     ? _emptyState()
                     : RefreshIndicator(
-                  onRefresh: () async {
+                  onRefresh:
+                      () async {
                     await Future.delayed(
                       const Duration(
-                        milliseconds: 500,
+                        milliseconds:
+                        500,
                       ),
                     );
 
-                    setState(() {});
+                    setState(
+                          () {},
+                    );
                   },
-                  child: ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(
+
+                  child:
+                  ListView.builder(
+                    padding:
+                    const EdgeInsets
+                        .fromLTRB(
                       16,
                       8,
                       16,
                       100,
                     ),
-                    itemCount: announcements.length,
-                    itemBuilder: (
+
+                    itemCount:
+                    announcements
+                        .length,
+
+                    itemBuilder:
+                        (
                         context,
                         index,
                         ) {
                       final announcement =
-                      announcements[index];
+                      announcements[
+                      index];
 
-                      return AdminAnnouncementCard(
-                        announcement:
-                        announcement,
-                        onDelete: () {
-                          _deleteAnnouncement(index);
-                        },
-                      );
+                      return
+                        AdminAnnouncementCard(
+                          announcement:
+                          announcement,
+
+                          onDelete: () {
+                            _deleteAnnouncement(
+                              index,
+                            );
+                          },
+                        );
                     },
                   ),
                 ),
@@ -187,51 +264,77 @@ class _AdminAnnouncementsScreenState
 
   Widget _header() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
+      padding:
+      const EdgeInsets.fromLTRB(
         16,
         8,
         16,
         0,
       ),
+
       child: Row(
         children: [
+
           Expanded(
             child: Column(
               crossAxisAlignment:
-              CrossAxisAlignment.start,
+              CrossAxisAlignment
+                  .start,
+
               children: [
+
                 const Text(
                   'Transport Communication',
+
                   style: TextStyle(
                     fontSize: 22,
-                    fontWeight: FontWeight.bold,
+                    fontWeight:
+                    FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 4),
+
+                const SizedBox(
+                  height: 4,
+                ),
+
                 Text(
                   'Publish important information to students, drivers and faculty.',
+
                   style: TextStyle(
                     fontSize: 13,
-                    color: Colors.grey.shade700,
+                    color:
+                    Colors.grey.shade700,
                   ),
                 ),
               ],
             ),
           ),
+
           Container(
-            padding: const EdgeInsets.symmetric(
+            padding:
+            const EdgeInsets
+                .symmetric(
               horizontal: 13,
               vertical: 8,
             ),
-            decoration: BoxDecoration(
+
+            decoration:
+            BoxDecoration(
               color: Colors.white,
+
               borderRadius:
-              BorderRadius.circular(20),
+              BorderRadius.circular(
+                20,
+              ),
             ),
+
             child: Text(
               '${demoAnnouncements.length}',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
+
+              style:
+              const TextStyle(
+                fontWeight:
+                FontWeight.bold,
               ),
             ),
           ),
@@ -254,25 +357,47 @@ class _AdminAnnouncementsScreenState
 
     return SizedBox(
       height: 45,
-      child: ListView.separated(
-        padding: const EdgeInsets.symmetric(
+
+      child:
+      ListView.separated(
+        padding:
+        const EdgeInsets
+            .symmetric(
           horizontal: 16,
         ),
-        scrollDirection: Axis.horizontal,
-        itemCount: filters.length,
-        separatorBuilder: (_, __) =>
-        const SizedBox(width: 8),
-        itemBuilder: (_, index) {
-          final filter = filters[index];
+
+        scrollDirection:
+        Axis.horizontal,
+
+        itemCount:
+        filters.length,
+
+        separatorBuilder:
+            (_, __) =>
+        const SizedBox(
+          width: 8,
+        ),
+
+        itemBuilder:
+            (_, index) {
+          final filter =
+          filters[index];
+
           final selected =
-              selectedFilter == filter;
+              selectedFilter ==
+                  filter;
 
           return ChoiceChip(
-            label: Text(filter),
-            selected: selected,
+            label:
+            Text(filter),
+
+            selected:
+            selected,
+
             onSelected: (_) {
               setState(() {
-                selectedFilter = filter;
+                selectedFilter =
+                    filter;
               });
             },
           );
@@ -284,30 +409,55 @@ class _AdminAnnouncementsScreenState
   Widget _emptyState() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(30),
+        padding:
+        const EdgeInsets.all(
+          30,
+        ),
+
         child: Column(
           mainAxisAlignment:
-          MainAxisAlignment.center,
+          MainAxisAlignment
+              .center,
+
           children: [
+
             Icon(
-              Icons.campaign_outlined,
+              Icons
+                  .campaign_outlined,
+
               size: 70,
-              color: Colors.grey.shade400,
+
+              color:
+              Colors.grey.shade400,
             ),
-            const SizedBox(height: 16),
+
+            const SizedBox(
+              height: 16,
+            ),
+
             const Text(
               'No Announcements',
+
               style: TextStyle(
                 fontSize: 20,
-                fontWeight: FontWeight.bold,
+                fontWeight:
+                FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
+
+            const SizedBox(
+              height: 8,
+            ),
+
             Text(
               'Create an announcement to share information with users.',
-              textAlign: TextAlign.center,
+
+              textAlign:
+              TextAlign.center,
+
               style: TextStyle(
-                color: Colors.grey.shade600,
+                color:
+                Colors.grey.shade600,
               ),
             ),
           ],

@@ -37,7 +37,7 @@ class StudentProfileScreen extends StatelessWidget {
 
                 const StudentProfileHeader(),
 
-                const SizedBox(height: 25),
+                const SizedBox(height: 50),
 
                 const Text(
                   "Academic Information",

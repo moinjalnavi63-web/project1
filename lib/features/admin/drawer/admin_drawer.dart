@@ -7,15 +7,11 @@ import '../raise_token/pages/admin_raise_token_screen.dart';
 import '../student_directory/pages/admin_student_directory_screen.dart';
 import '../announcements/pages/admin_announcements_screen.dart';
 
-// ==========================================================
-// GPS TRACKING
-// ==========================================================
-
 import '../../gps_tracking/pages/admin_gps_tracking_screen.dart';
 
-// IMPORTANT:
-// Change this import path if your LoginScreen is located elsewhere.
 import '../../authentication/presentation/pages/login_screen.dart';
+
+import '../profile/data/admin_profile_data.dart';
 
 class AdminDrawer extends StatelessWidget {
   const AdminDrawer({super.key});
@@ -34,9 +30,11 @@ class AdminDrawer extends StatelessWidget {
             Container(
               width: double.infinity,
 
-              padding: const EdgeInsets.all(22),
+              padding:
+              const EdgeInsets.all(22),
 
-              decoration: const BoxDecoration(
+              decoration:
+              const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
                     Color(0xff6366f1),
@@ -45,31 +43,29 @@ class AdminDrawer extends StatelessWidget {
                 ),
               ),
 
-              child: const Column(
+              child: Column(
                 crossAxisAlignment:
                 CrossAxisAlignment.start,
 
                 children: [
 
-                  CircleAvatar(
+                  // ADMIN PHOTO / AVATAR
+
+                  const AdminProfileAvatar(
                     radius: 30,
-
-                    backgroundColor:
-                    Colors.white,
-
-                    child: Icon(
-                      Icons.admin_panel_settings,
-                      size: 34,
-                      color: Colors.deepPurple,
-                    ),
                   ),
 
-                  SizedBox(height: 14),
+                  const SizedBox(
+                    height: 14,
+                  ),
+
+                  // ADMIN NAME
 
                   Text(
-                    'KUTS Admin',
+                    currentAdminProfile.name,
 
-                    style: TextStyle(
+                    style:
+                    const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight:
@@ -77,21 +73,44 @@ class AdminDrawer extends StatelessWidget {
                     ),
                   ),
 
-                  SizedBox(height: 4),
+                  const SizedBox(
+                    height: 4,
+                  ),
+
+                  // ADMIN ROLE
 
                   Text(
-                    'Transport Management',
+                    currentAdminProfile.role,
 
-                    style: TextStyle(
+                    style:
+                    const TextStyle(
                       color: Colors.white70,
                       fontSize: 13,
+                    ),
+                  ),
+
+                  const SizedBox(
+                    height: 4,
+                  ),
+
+                  // ADMIN EMAIL
+
+                  Text(
+                    currentAdminProfile.email,
+
+                    style:
+                    const TextStyle(
+                      color: Colors.white60,
+                      fontSize: 11,
                     ),
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(
+              height: 10,
+            ),
 
             // ==========================
             // MENU
@@ -99,7 +118,8 @@ class AdminDrawer extends StatelessWidget {
 
             Expanded(
               child: ListView(
-                padding: EdgeInsets.zero,
+                padding:
+                EdgeInsets.zero,
 
                 children: [
 
@@ -328,15 +348,18 @@ class AdminDrawer extends StatelessWidget {
             // ==========================
 
             ListTile(
-              leading: const Icon(
+              leading:
+              const Icon(
                 Icons.logout,
                 color: Colors.red,
               ),
 
-              title: const Text(
+              title:
+              const Text(
                 'Logout',
 
-                style: TextStyle(
+                style:
+                TextStyle(
                   color: Colors.red,
                   fontWeight:
                   FontWeight.w600,
@@ -345,12 +368,7 @@ class AdminDrawer extends StatelessWidget {
 
               onTap: () {
 
-                // Close drawer.
-
                 Navigator.pop(context);
-
-                // Remove all previous screens
-                // and open LoginScreen.
 
                 Navigator.of(context)
                     .pushAndRemoveUntil(
@@ -365,7 +383,9 @@ class AdminDrawer extends StatelessWidget {
               },
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(
+              height: 10,
+            ),
           ],
         ),
       ),
@@ -389,16 +409,20 @@ class AdminDrawer extends StatelessWidget {
 
     return ListTile(
 
-      leading: Icon(icon),
+      leading:
+      Icon(icon),
 
-      title: Text(title),
+      title:
+      Text(title),
 
-      trailing: const Icon(
+      trailing:
+      const Icon(
         Icons.chevron_right,
         size: 20,
       ),
 
-      onTap: onTap,
+      onTap:
+      onTap,
     );
   }
 }

@@ -498,3 +498,4 @@ class AnnouncementDetailsScreen extends StatelessWidget {
         '$hour:$minute $period';
   }
 }
+

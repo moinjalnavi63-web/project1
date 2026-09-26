@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'welcome_card.dart';
-import 'announcement_card.dart';
+import 'student_announcement_card.dart';
 
 class StudentHome extends StatelessWidget {
   const StudentHome({super.key});
@@ -9,6 +9,8 @@ class StudentHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
+
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -20,12 +22,14 @@ class StudentHome extends StatelessWidget {
           ],
         ),
       ),
+
       child: ListView(
         padding: const EdgeInsets.all(20),
-        children: [
 
+        children: const [
+          SizedBox(height: 5),
 
-          const Text(
+          Text(
             "Announcements",
             style: TextStyle(
               fontSize: 22,
@@ -33,26 +37,25 @@ class StudentHome extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 15),
+          SizedBox(height: 6),
 
-          const AnnouncementCard(
-            title: "Bus Delay",
-            message: "Bus No.1 will arrive 10 minutes late due to traffic.",
-            date: "Today",
+          Text(
+            "Latest announcements from KUTS administration",
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.black54,
+            ),
           ),
 
-          const AnnouncementCard(
-            title: "Holiday Notice",
-            message: "University transport will remain closed tomorrow.",
-            date: "Yesterday",
-          ),
+          SizedBox(height: 15),
 
-          const AnnouncementCard(
-            title: "Emergency",
-            message:
-            "Heavy rainfall expected. Please reach your stop 10 minutes early.",
-            date: "2 days ago",
-          ),
+          // ==========================================
+          // REAL ANNOUNCEMENTS
+          // ==========================================
+
+          StudentAnnouncementCard(),
+
+          SizedBox(height: 20),
         ],
       ),
     );
