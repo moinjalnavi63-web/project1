@@ -12,6 +12,7 @@ import '../../gps_tracking/pages/admin_gps_tracking_screen.dart';
 import '../../authentication/presentation/pages/login_screen.dart';
 
 import '../profile/data/admin_profile_data.dart';
+import '../profile/pages/admin_profile_screen.dart';
 
 class AdminDrawer extends StatelessWidget {
   const AdminDrawer({super.key});
@@ -27,84 +28,138 @@ class AdminDrawer extends StatelessWidget {
             // HEADER
             // ==========================
 
-            Container(
-              width: double.infinity,
+            // ========================================================
+            // ADMIN PROFILE HEADER
+            // CLICKABLE
+            // ========================================================
 
-              padding:
-              const EdgeInsets.all(22),
+            InkWell(
+              borderRadius: BorderRadius.circular(0),
 
-              decoration:
-              const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xff6366f1),
-                    Color(0xff8b5cf6),
+              onTap: () {
+
+                // Close drawer first.
+                Navigator.pop(context);
+
+                // Open admin profile.
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                    const AdminProfileScreen(),
+                  ),
+                );
+              },
+
+              child: Container(
+                width: double.infinity,
+
+                padding:
+                const EdgeInsets.all(22),
+
+                decoration:
+                const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xff6366f1),
+                      Color(0xff8b5cf6),
+                    ],
+                  ),
+                ),
+
+                child: Column(
+                  crossAxisAlignment:
+                  CrossAxisAlignment.start,
+
+                  children: [
+
+                    // ADMIN PHOTO / AVATAR
+
+                    const AdminProfileAvatar(
+                      radius: 30,
+                    ),
+
+                    const SizedBox(
+                      height: 14,
+                    ),
+
+                    // ADMIN NAME
+
+                    Text(
+                      currentAdminProfile.name,
+
+                      style:
+                      const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight:
+                        FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(
+                      height: 4,
+                    ),
+
+                    // ADMIN ROLE
+
+                    Text(
+                      currentAdminProfile.role,
+
+                      style:
+                      const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 13,
+                      ),
+                    ),
+
+                    const SizedBox(
+                      height: 4,
+                    ),
+
+                    // ADMIN EMAIL
+
+                    Text(
+                      currentAdminProfile.email,
+
+                      style:
+                      const TextStyle(
+                        color: Colors.white60,
+                        fontSize: 11,
+                      ),
+                    ),
+
+                    const SizedBox(
+                      height: 12,
+                    ),
+
+                    // ==================================================
+                    // EDIT PROFILE INDICATION
+                    // ==================================================
+
+                    Row(
+                      children: const [
+                        Icon(
+                          Icons.edit_outlined,
+                          color: Colors.white70,
+                          size: 15,
+                        ),
+
+                        SizedBox(width: 5),
+
+                        Text(
+                          'View / Edit Profile',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 11,
+                            fontWeight:
+                            FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-              ),
-
-              child: Column(
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
-
-                children: [
-
-                  // ADMIN PHOTO / AVATAR
-
-                  const AdminProfileAvatar(
-                    radius: 30,
-                  ),
-
-                  const SizedBox(
-                    height: 14,
-                  ),
-
-                  // ADMIN NAME
-
-                  Text(
-                    currentAdminProfile.name,
-
-                    style:
-                    const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight:
-                      FontWeight.bold,
-                    ),
-                  ),
-
-                  const SizedBox(
-                    height: 4,
-                  ),
-
-                  // ADMIN ROLE
-
-                  Text(
-                    currentAdminProfile.role,
-
-                    style:
-                    const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 13,
-                    ),
-                  ),
-
-                  const SizedBox(
-                    height: 4,
-                  ),
-
-                  // ADMIN EMAIL
-
-                  Text(
-                    currentAdminProfile.email,
-
-                    style:
-                    const TextStyle(
-                      color: Colors.white60,
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
               ),
             ),
 

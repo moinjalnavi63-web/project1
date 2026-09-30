@@ -345,76 +345,90 @@ class _DriverAnnouncementItemState
 
           // ==================================================
           // ACTIONS
+          // RESPONSIVE - NO OVERFLOW
           // ==================================================
 
           Row(
-            mainAxisAlignment:
-            MainAxisAlignment.spaceAround,
-
             children: [
 
-              TextButton.icon(
-                onPressed: () {
-                  setState(() {
-                    AnnouncementInteractionStore
-                        .toggleLike(
-                      announcement.title,
-                    );
-                  });
-                },
+              // ================================================
+              // LIKE
+              // ================================================
 
-                icon: Icon(
-                  liked
+              Expanded(
+                child: _actionButton(
+                  icon: liked
                       ? Icons.thumb_up
-                      : Icons
-                      .thumb_up_outlined,
-                ),
+                      : Icons.thumb_up_outlined,
 
-                label: Text(
+                  label:
                   liked
                       ? "Liked"
                       : "Like",
+
+                  iconColor: liked
+                      ? const Color(
+                    0xFF4F46E5,
+                  )
+                      : null,
+
+                  onPressed: () {
+                    setState(() {
+                      AnnouncementInteractionStore
+                          .toggleLike(
+                        announcement.title,
+                      );
+                    });
+                  },
                 ),
               ),
 
-              TextButton.icon(
-                onPressed: () {
-                  showAnnouncementComments(
-                    context,
-                    announcement,
-                  ).then((_) {
-                    if (mounted) {
-                      setState(() {});
-                    }
-                  });
-                },
+              // ================================================
+              // COMMENT
+              // ================================================
 
-                icon: const Icon(
-                  Icons
-                      .comment_outlined,
-                ),
+              Expanded(
+                child: _actionButton(
+                  icon:
+                  Icons.comment_outlined,
 
-                label: Text(
+                  label:
                   commentCount > 0
                       ? "Comment $commentCount"
                       : "Comment",
+
+                  onPressed: () {
+                    showAnnouncementComments(
+                      context,
+                      announcement,
+                    ).then((_) {
+                      if (mounted) {
+                        setState(() {});
+                      }
+                    });
+                  },
                 ),
               ),
 
-              TextButton.icon(
-                onPressed: () {
-                  shareAnnouncement(
-                    context,
-                    announcement,
-                  );
-                },
+              // ================================================
+              // SHARE
+              // ================================================
 
-                icon: const Icon(
+              Expanded(
+                child: _actionButton(
+                  icon:
                   Icons.share,
-                ),
 
-                label:
-                const Text("Share"),
+                  label:
+                  "Share",
+
+                  onPressed: () {
+                    shareAnnouncement(
+                      context,
+                      announcement,
+                    );
+                  },
+                ),
               ),
             ],
           ),
@@ -446,6 +460,77 @@ class _DriverAnnouncementItemState
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // RESPONSIVE ACTION BUTTON
+  // ============================================================
+
+  Widget _actionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+    Color? iconColor,
+  }) {
+    return InkWell(
+      onTap: onPressed,
+
+      borderRadius:
+      BorderRadius.circular(12),
+
+      child: Padding(
+        padding:
+        const EdgeInsets.symmetric(
+          vertical: 10,
+          horizontal: 4,
+        ),
+
+        child: Row(
+          mainAxisAlignment:
+          MainAxisAlignment.center,
+
+          children: [
+
+            Icon(
+              icon,
+              size: 22,
+              color:
+              iconColor ??
+                  const Color(
+                    0xFF5B5F8F,
+                  ),
+            ),
+
+            const SizedBox(
+              width: 5,
+            ),
+
+            Flexible(
+              child: Text(
+                label,
+
+                maxLines: 1,
+
+                overflow:
+                TextOverflow.ellipsis,
+
+                textAlign:
+                TextAlign.center,
+
+                style:
+                const TextStyle(
+                  fontSize: 13,
+                  fontWeight:
+                  FontWeight.w600,
+                  color:
+                  Color(0xFF5B5F8F),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -104,7 +104,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       Icons.notifications_outlined,
                     ),
                     onPressed: () {
-                      // Notifications screen will be connected later.
+                      // ==================================================
+                      // ADMIN NOTIFICATIONS
+                      // Opens the same announcement notification system
+                      // used by the other KUTS roles.
+                      // ==================================================
+
+                      showAnnouncementNotifications(
+                        context,
+                        'admin',
+                      );
                     },
                   ),
                   const SizedBox(width: 8),
@@ -172,7 +181,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => const AdminBusDirectoryScreen(),
+                                  builder: (_) =>
+                                  const AdminBusDirectoryScreen(),
                                 ),
                               );
                             },
@@ -208,7 +218,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => const AdminRaiseTokenScreen(),
+                                  builder: (_) =>
+                                  const AdminRaiseTokenScreen(),
                                 ),
                               );
                             },

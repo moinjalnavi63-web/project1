@@ -1,16 +1,6 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
 
-// ============================================================
-// ADMIN PROFILE DATA
-// ============================================================
-//
-// This is the central admin profile information.
-//
-// Later this can be connected to Firebase / Supabase / MySQL.
-// For now it works as frontend stored profile data just like
-// the existing student profile data.
-//
-// ============================================================
+import 'package:flutter/material.dart';
 
 class AdminProfileData {
   final String name;
@@ -26,40 +16,69 @@ class AdminProfileData {
     required this.role,
     this.profilePhoto,
   });
-}
 
+  // ============================================================
+  // COPY WITH
+  // ============================================================
+
+  AdminProfileData copyWith({
+    String? name,
+    String? email,
+    String? mobile,
+    String? role,
+    String? profilePhoto,
+  }) {
+    return AdminProfileData(
+      name: name ?? this.name,
+      email: email ?? this.email,
+      mobile: mobile ?? this.mobile,
+      role: role ?? this.role,
+      profilePhoto: profilePhoto ?? this.profilePhoto,
+    );
+  }
+}
 
 // ============================================================
 // CURRENT ADMIN PROFILE
 // ============================================================
 //
-// Change these values with the actual admin information.
-//
-// profilePhoto:
-// - Keep null if there is no photo.
-// - If using an asset, example:
-//   'assets/images/admin_profile.jpg'
+// This is no longer const because the admin profile can be
+// replaced after editing.
 //
 // ============================================================
 
-const AdminProfileData currentAdminProfile = AdminProfileData(
-  name: 'KUTS Admin',
+AdminProfileData currentAdminProfile =
+const AdminProfileData(
+  name: 'Admin',
   email: 'admin@kuts.edu.in',
   mobile: '+91 9876543210',
   role: 'Transport Administrator',
   profilePhoto: null,
 );
 
+// ============================================================
+// UPDATE CURRENT ADMIN PROFILE
+// ============================================================
+
+void updateCurrentAdminProfile({
+  required String name,
+  required String email,
+  required String mobile,
+  required String role,
+  String? profilePhoto,
+}) {
+  currentAdminProfile =
+      currentAdminProfile.copyWith(
+        name: name,
+        email: email,
+        mobile: mobile,
+        role: role,
+        profilePhoto: profilePhoto,
+      );
+}
 
 // ============================================================
-// ADMIN AVATAR
-// ============================================================
-//
-// Reusable widget for displaying the admin photo.
-//
-// If profilePhoto is null, it automatically displays the first
-// letter of the admin name.
-//
+// ADMIN PROFILE AVATAR
 // ============================================================
 
 class AdminProfileAvatar extends StatelessWidget {
@@ -74,24 +93,47 @@ class AdminProfileAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final profile = currentAdminProfile;
 
-    // ========================================================
-    // PROFILE PHOTO AVAILABLE
-    // ========================================================
+    // ==========================================================
+    // PROFILE PHOTO
+    // ==========================================================
 
     if (profile.profilePhoto != null &&
         profile.profilePhoto!.trim().isNotEmpty) {
+      final String photoPath =
+      profile.profilePhoto!.trim();
+
+      final File photoFile = File(photoPath);
+
+      // ========================================================
+      // LOCAL FILE PHOTO
+      // ========================================================
+
+      if (photoFile.existsSync()) {
+        return CircleAvatar(
+          radius: radius,
+          backgroundColor:
+          const Color(0xffede9fe),
+          backgroundImage:
+          FileImage(photoFile),
+        );
+      }
+
+      // ========================================================
+      // ASSET PHOTO
+      // ========================================================
+
       return CircleAvatar(
         radius: radius,
-        backgroundImage: AssetImage(
-          profile.profilePhoto!,
-        ),
-        backgroundColor: const Color(0xffede9fe),
+        backgroundColor:
+        const Color(0xffede9fe),
+        backgroundImage:
+        AssetImage(photoPath),
       );
     }
 
-    // ========================================================
-    // NO PHOTO
-    // ========================================================
+    // ==========================================================
+    // DEFAULT LETTER AVATAR
+    // ==========================================================
 
     final String firstLetter =
     profile.name.trim().isNotEmpty
@@ -100,7 +142,8 @@ class AdminProfileAvatar extends StatelessWidget {
 
     return CircleAvatar(
       radius: radius,
-      backgroundColor: const Color(0xffede9fe),
+      backgroundColor:
+      const Color(0xffede9fe),
       child: Text(
         firstLetter,
         style: TextStyle(

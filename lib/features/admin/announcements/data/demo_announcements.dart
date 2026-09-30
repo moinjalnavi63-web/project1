@@ -5,8 +5,8 @@ import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../pages/announcement_details_screen.dart';
 import '../../profile/data/admin_profile_data.dart';
+import '../pages/announcement_details_screen.dart';
 
 // ============================================================
 // ANNOUNCEMENT DATA MODEL
@@ -131,7 +131,8 @@ class AnnouncementInteractionStore {
       String title,
       String comment,
       ) {
-    final String cleanedComment = comment.trim();
+    final String cleanedComment =
+    comment.trim();
 
     if (cleanedComment.isEmpty) {
       return;
@@ -142,7 +143,9 @@ class AnnouncementInteractionStore {
           () => <String>[],
     );
 
-    comments[title]!.add(cleanedComment);
+    comments[title]!.add(
+      cleanedComment,
+    );
   }
 
   static bool isRead(String title) {
@@ -178,27 +181,40 @@ List<AnnouncementData> announcementsForRole(
   return demoAnnouncements.where(
         (announcement) {
       final String audience =
-      announcement.targetAudience.toLowerCase();
+      announcement.targetAudience
+          .toLowerCase();
 
-      // Global announcements
+      // --------------------------------------------------------
+      // GLOBAL ANNOUNCEMENTS
+      // --------------------------------------------------------
+
       if (audience.contains('everyone') ||
           audience.contains('all')) {
         return true;
       }
 
-      // Student announcements
+      // --------------------------------------------------------
+      // STUDENT ANNOUNCEMENTS
+      // --------------------------------------------------------
+
       if (normalizedRole == 'student') {
         return audience.contains('student') ||
             audience.contains('bus') ||
             audience.contains('route');
       }
 
-      // Faculty announcements
+      // --------------------------------------------------------
+      // FACULTY ANNOUNCEMENTS
+      // --------------------------------------------------------
+
       if (normalizedRole == 'faculty') {
         return audience.contains('faculty');
       }
 
-      // Driver announcements
+      // --------------------------------------------------------
+      // DRIVER ANNOUNCEMENTS
+      // --------------------------------------------------------
+
       if (normalizedRole == 'driver') {
         return audience.contains('driver');
       }
@@ -211,184 +227,37 @@ List<AnnouncementData> announcementsForRole(
 // ============================================================
 // SEARCH ANNOUNCEMENTS
 // ============================================================
+//
+// Search uses a dedicated StatefulWidget.
+// This prevents the temporary StatefulBuilder/controller
+// lifecycle from causing:
+//
+// '_dependents.isEmpty': is not true
+//
+// ============================================================
 
 Future<AnnouncementData?> showAnnouncementSearch(
     BuildContext context,
     String role,
     ) async {
-  final TextEditingController controller =
-  TextEditingController();
-
   final List<AnnouncementData> announcements =
   announcementsForRole(role);
 
   final AnnouncementData? result =
   await showDialog<AnnouncementData>(
     context: context,
+    barrierDismissible: true,
     builder: (dialogContext) {
-      return StatefulBuilder(
-        builder: (
-            context,
-            setDialogState,
-            ) {
-          final String query =
-          controller.text.trim().toLowerCase();
-
-          final List<AnnouncementData> filtered =
-          announcements.where(
-                (announcement) {
-              if (query.isEmpty) {
-                return true;
-              }
-
-              return announcement.title
-                  .toLowerCase()
-                  .contains(query) ||
-                  announcement.description
-                      .toLowerCase()
-                      .contains(query) ||
-                  announcement.type
-                      .toLowerCase()
-                      .contains(query) ||
-                  announcement.targetAudience
-                      .toLowerCase()
-                      .contains(query);
-            },
-          ).toList();
-
-          return AlertDialog(
-            title: const Text(
-              'Search KUTS',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            content: SizedBox(
-              width: double.maxFinite,
-              height: 430,
-              child: Column(
-                children: [
-                  TextField(
-                    controller: controller,
-                    autofocus: true,
-                    decoration: InputDecoration(
-                      hintText:
-                      'Search announcements...',
-                      prefixIcon: const Icon(
-                        Icons.search,
-                      ),
-                      suffixIcon:
-                      controller.text.isNotEmpty
-                          ? IconButton(
-                        icon: const Icon(
-                          Icons.clear,
-                        ),
-                        onPressed: () {
-                          controller.clear();
-                          setDialogState(
-                                () {},
-                          );
-                        },
-                      )
-                          : null,
-                      border: OutlineInputBorder(
-                        borderRadius:
-                        BorderRadius.circular(14),
-                      ),
-                    ),
-                    onChanged: (_) {
-                      setDialogState(() {});
-                    },
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  Expanded(
-                    child: filtered.isEmpty
-                        ? const Center(
-                      child: Text(
-                        'No announcements found.',
-                      ),
-                    )
-                        : ListView.separated(
-                      itemCount:
-                      filtered.length,
-                      separatorBuilder:
-                          (_, __) =>
-                      const Divider(),
-                      itemBuilder:
-                          (context, index) {
-                        final announcement =
-                        filtered[index];
-
-                        return ListTile(
-                          leading: Container(
-                            width: 42,
-                            height: 42,
-                            decoration:
-                            BoxDecoration(
-                              color:
-                              const Color(
-                                0xffede9fe,
-                              ),
-                              borderRadius:
-                              BorderRadius
-                                  .circular(
-                                12,
-                              ),
-                            ),
-                            child: const Icon(
-                              Icons
-                                  .campaign_outlined,
-                              color: Color(
-                                0xff6366f1,
-                              ),
-                            ),
-                          ),
-                          title: Text(
-                            announcement.title,
-                            maxLines: 2,
-                            overflow:
-                            TextOverflow
-                                .ellipsis,
-                            style:
-                            const TextStyle(
-                              fontWeight:
-                              FontWeight.bold,
-                            ),
-                          ),
-                          subtitle: Text(
-                            announcement
-                                .description,
-                            maxLines: 2,
-                            overflow:
-                            TextOverflow
-                                .ellipsis,
-                          ),
-                          trailing:
-                          const Icon(
-                            Icons.chevron_right,
-                          ),
-                          onTap: () {
-                            Navigator.pop(
-                              dialogContext,
-                              announcement,
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
+      return _AnnouncementSearchDialog(
+        announcements: announcements,
       );
     },
   );
 
-  controller.dispose();
+  // ----------------------------------------------------------
+  // Open announcement details only after the dialog has fully
+  // returned and been removed from the widget tree.
+  // ----------------------------------------------------------
 
   if (result != null && context.mounted) {
     await Navigator.push(
@@ -406,6 +275,282 @@ Future<AnnouncementData?> showAnnouncementSearch(
 }
 
 // ============================================================
+// SEARCH DIALOG
+// ============================================================
+
+class _AnnouncementSearchDialog
+    extends StatefulWidget {
+  final List<AnnouncementData> announcements;
+
+  const _AnnouncementSearchDialog({
+    required this.announcements,
+  });
+
+  @override
+  State<_AnnouncementSearchDialog>
+  createState() =>
+      _AnnouncementSearchDialogState();
+}
+
+class _AnnouncementSearchDialogState
+    extends State<_AnnouncementSearchDialog> {
+  late final TextEditingController
+  _controller;
+
+  String _query = '';
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller =
+        TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+
+    super.dispose();
+  }
+
+  List<AnnouncementData>
+  _filteredAnnouncements() {
+    final String query =
+    _query.trim().toLowerCase();
+
+    if (query.isEmpty) {
+      return widget.announcements;
+    }
+
+    return widget.announcements
+        .where(
+          (announcement) {
+        return announcement.title
+            .toLowerCase()
+            .contains(query) ||
+            announcement.description
+                .toLowerCase()
+                .contains(query) ||
+            announcement.type
+                .toLowerCase()
+                .contains(query) ||
+            announcement.targetAudience
+                .toLowerCase()
+                .contains(query);
+      },
+    )
+        .toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final List<AnnouncementData>
+    filtered =
+    _filteredAnnouncements();
+
+    return AlertDialog(
+      title: const Text(
+        'Search KUTS',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+
+      content: SizedBox(
+        width: double.maxFinite,
+        height: 430,
+
+        child: Column(
+          children: [
+
+            // ------------------------------------------------
+            // SEARCH FIELD
+            // ------------------------------------------------
+
+            TextField(
+              controller: _controller,
+
+              autofocus: true,
+
+              textInputAction:
+              TextInputAction.search,
+
+              decoration:
+              InputDecoration(
+                hintText:
+                'Search announcements...',
+
+                prefixIcon:
+                const Icon(
+                  Icons.search,
+                ),
+
+                suffixIcon:
+                _controller.text
+                    .isNotEmpty
+                    ? IconButton(
+                  icon:
+                  const Icon(
+                    Icons.clear,
+                  ),
+                  onPressed: () {
+                    _controller
+                        .clear();
+
+                    setState(() {
+                      _query = '';
+                    });
+                  },
+                )
+                    : null,
+
+                border:
+                OutlineInputBorder(
+                  borderRadius:
+                  BorderRadius.circular(
+                    14,
+                  ),
+                ),
+              ),
+
+              onChanged: (value) {
+                setState(() {
+                  _query = value;
+                });
+              },
+            ),
+
+            const SizedBox(
+              height: 15,
+            ),
+
+            // ------------------------------------------------
+            // SEARCH RESULTS
+            // ------------------------------------------------
+
+            Expanded(
+              child:
+              filtered.isEmpty
+                  ? const Center(
+                child: Text(
+                  'No announcements found.',
+                  textAlign:
+                  TextAlign.center,
+                ),
+              )
+                  : ListView.separated(
+                keyboardDismissBehavior:
+                ScrollViewKeyboardDismissBehavior
+                    .onDrag,
+
+                itemCount:
+                filtered.length,
+
+                separatorBuilder:
+                    (_, __) =>
+                const Divider(),
+
+                itemBuilder:
+                    (context, index) {
+                  final AnnouncementData
+                  announcement =
+                  filtered[index];
+
+                  return ListTile(
+                    contentPadding:
+                    const EdgeInsets
+                        .symmetric(
+                      horizontal: 5,
+                      vertical: 5,
+                    ),
+
+                    leading:
+                    Container(
+                      width: 42,
+                      height: 42,
+
+                      decoration:
+                      BoxDecoration(
+                        color:
+                        const Color(
+                          0xffede9fe,
+                        ),
+
+                        borderRadius:
+                        BorderRadius
+                            .circular(
+                          12,
+                        ),
+                      ),
+
+                      child:
+                      const Icon(
+                        Icons
+                            .campaign_outlined,
+
+                        color:
+                        Color(
+                          0xff6366f1,
+                        ),
+                      ),
+                    ),
+
+                    title: Text(
+                      announcement
+                          .title,
+
+                      maxLines: 2,
+
+                      overflow:
+                      TextOverflow
+                          .ellipsis,
+
+                      style:
+                      const TextStyle(
+                        fontWeight:
+                        FontWeight
+                            .bold,
+                      ),
+                    ),
+
+                    subtitle:
+                    Text(
+                      announcement
+                          .description,
+
+                      maxLines: 2,
+
+                      overflow:
+                      TextOverflow
+                          .ellipsis,
+                    ),
+
+                    trailing:
+                    const Icon(
+                      Icons
+                          .chevron_right,
+                    ),
+
+                    onTap: () {
+                      Navigator.of(
+                        context,
+                      ).pop(
+                        announcement,
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
 // NOTIFICATIONS
 // ============================================================
 
@@ -414,51 +559,76 @@ showAnnouncementNotifications(
     BuildContext context,
     String role,
     ) async {
-  final List<AnnouncementData> announcements =
+  final List<AnnouncementData>
+  announcements =
   announcementsForRole(role);
 
   final AnnouncementData? result =
-  await showModalBottomSheet<AnnouncementData>(
+  await showModalBottomSheet<
+      AnnouncementData>(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
+
     builder: (sheetContext) {
       return Container(
         height:
-        MediaQuery.of(context).size.height * .75,
-        decoration: const BoxDecoration(
+        MediaQuery.of(context)
+            .size
+            .height *
+            .75,
+
+        decoration:
+        const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(
+
+          borderRadius:
+          BorderRadius.vertical(
             top: Radius.circular(25),
           ),
         ),
+
         child: Column(
           children: [
-            const SizedBox(height: 12),
+
+            const SizedBox(
+              height: 12,
+            ),
 
             Container(
               width: 45,
               height: 5,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
+
+              decoration:
+              BoxDecoration(
+                color:
+                Colors.grey.shade300,
+
                 borderRadius:
-                BorderRadius.circular(10),
+                BorderRadius.circular(
+                  10,
+                ),
               ),
             ),
 
             Padding(
-              padding: const EdgeInsets.fromLTRB(
+              padding:
+              const EdgeInsets.fromLTRB(
                 20,
                 18,
                 12,
                 10,
               ),
+
               child: Row(
                 children: [
+
                   const Expanded(
                     child: Text(
                       'Notifications',
-                      style: TextStyle(
+
+                      style:
+                      TextStyle(
                         fontSize: 21,
                         fontWeight:
                         FontWeight.bold,
@@ -466,14 +636,19 @@ showAnnouncementNotifications(
                     ),
                   ),
 
-                  if (announcements.isNotEmpty)
+                  if (announcements
+                      .isNotEmpty)
                     TextButton(
                       onPressed: () {
-                        for (final announcement
-                        in announcements) {
+                        for (
+                        final AnnouncementData
+                        announcement
+                        in announcements
+                        ) {
                           AnnouncementInteractionStore
                               .markAsRead(
-                            announcement.title,
+                            announcement
+                                .title,
                           );
                         }
 
@@ -481,9 +656,15 @@ showAnnouncementNotifications(
                           sheetContext,
                         );
 
-                        ScaffoldMessenger.of(
+                        if (!context.mounted) {
+                          return;
+                        }
+
+                        ScaffoldMessenger
+                            .of(
                           context,
-                        ).showSnackBar(
+                        )
+                            .showSnackBar(
                           const SnackBar(
                             content: Text(
                               'All notifications marked as read.',
@@ -491,6 +672,7 @@ showAnnouncementNotifications(
                           ),
                         );
                       },
+
                       child: const Text(
                         'Mark all read',
                       ),
@@ -499,52 +681,76 @@ showAnnouncementNotifications(
               ),
             ),
 
-            const Divider(height: 1),
+            const Divider(
+              height: 1,
+            ),
 
             Expanded(
-              child: announcements.isEmpty
+              child:
+              announcements.isEmpty
                   ? const Center(
                 child: Text(
                   'No notifications available.',
-                  style: TextStyle(
-                    color: Colors.grey,
+
+                  style:
+                  TextStyle(
+                    color:
+                    Colors.grey,
                   ),
                 ),
               )
                   : ListView.builder(
                 padding:
-                const EdgeInsets.all(14),
+                const EdgeInsets
+                    .all(
+                  14,
+                ),
+
                 itemCount:
-                announcements.length,
+                announcements
+                    .length,
+
                 itemBuilder:
-                    (context, index) {
-                  final announcement =
-                  announcements[index];
+                    (context,
+                    index) {
+                  final AnnouncementData
+                  announcement =
+                  announcements[
+                  index];
 
                   final bool read =
                   AnnouncementInteractionStore
                       .isRead(
-                    announcement.title,
+                    announcement
+                        .title,
                   );
 
                   return Card(
                     elevation: 0,
+
                     color: read
-                        ? Colors.grey.shade50
+                        ? Colors
+                        .grey
+                        .shade50
                         : const Color(
                       0xffeef2ff,
                     ),
+
                     margin:
-                    const EdgeInsets.only(
+                    const EdgeInsets
+                        .only(
                       bottom: 10,
                     ),
+
                     shape:
                     RoundedRectangleBorder(
                       borderRadius:
-                      BorderRadius.circular(
+                      BorderRadius
+                          .circular(
                         16,
                       ),
                     ),
+
                     child: ListTile(
                       contentPadding:
                       const EdgeInsets
@@ -552,53 +758,75 @@ showAnnouncementNotifications(
                         horizontal: 15,
                         vertical: 7,
                       ),
-                      leading: CircleAvatar(
+
+                      leading:
+                      CircleAvatar(
                         backgroundColor:
                         const Color(
                           0xffe0e7ff,
                         ),
-                        child: Icon(
+
+                        child:
+                        Icon(
                           read
                               ? Icons
                               .notifications_none
                               : Icons
                               .notifications_active,
-                          color: const Color(
+
+                          color:
+                          const Color(
                             0xff4f46e5,
                           ),
                         ),
                       ),
+
                       title: Text(
-                        announcement.title,
+                        announcement
+                            .title,
+
                         style:
                         const TextStyle(
                           fontWeight:
-                          FontWeight.bold,
+                          FontWeight
+                              .bold,
                         ),
                       ),
-                      subtitle: Text(
+
+                      subtitle:
+                      Text(
                         announcement
                             .description,
+
                         maxLines: 2,
+
                         overflow:
-                        TextOverflow.ellipsis,
+                        TextOverflow
+                            .ellipsis,
                       ),
+
                       trailing: read
                           ? null
                           : Container(
                         width: 9,
                         height: 9,
+
                         decoration:
                         const BoxDecoration(
-                          color: Colors.red,
+                          color:
+                          Colors.red,
+
                           shape:
-                          BoxShape.circle,
+                          BoxShape
+                              .circle,
                         ),
                       ),
-                      onTap: () async {
+
+                      onTap: () {
                         AnnouncementInteractionStore
                             .markAsRead(
-                          announcement.title,
+                          announcement
+                              .title,
                         );
 
                         Navigator.pop(
@@ -616,6 +844,10 @@ showAnnouncementNotifications(
       );
     },
   );
+
+  // ----------------------------------------------------------
+  // OPEN NOTIFICATION DETAILS
+  // ----------------------------------------------------------
 
   if (result != null && context.mounted) {
     await Navigator.push(
@@ -635,266 +867,431 @@ showAnnouncementNotifications(
 // ============================================================
 // COMMENTS
 // ============================================================
+//
+// IMPORTANT FIX:
+//
+// This is now a dedicated StatefulWidget instead of a
+// StatefulBuilder.
+//
+// The TextEditingController belongs to the comments sheet and
+// is disposed by the sheet itself.
+//
+// This prevents the previous:
+//
+// '_dependents.isEmpty': is not true
+//
+// crash when:
+// 1. User opens comments.
+// 2. User writes a comment.
+// 3. User sends the comment.
+// 4. User pulls the bottom sheet down.
+// ============================================================
 
 Future<void> showAnnouncementComments(
     BuildContext context,
     AnnouncementData announcement,
     ) async {
-  final TextEditingController controller =
-  TextEditingController();
-
   await showModalBottomSheet(
     context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (sheetContext) {
-      return StatefulBuilder(
-        builder: (
-            context,
-            setState,
-            ) {
-          final List<String> comments =
-          AnnouncementInteractionStore
-              .commentsFor(
-            announcement.title,
-          );
 
-          return Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context)
-                  .viewInsets
-                  .bottom,
+    isScrollControlled: true,
+
+    backgroundColor:
+    Colors.transparent,
+
+    // Prevent the sheet from requesting
+    // focus again during route transitions.
+    requestFocus: false,
+
+    builder: (sheetContext) {
+      return _AnnouncementCommentsSheet(
+        announcement: announcement,
+      );
+    },
+  );
+}
+
+// ============================================================
+// COMMENTS SHEET STATEFUL WIDGET
+// ============================================================
+
+class _AnnouncementCommentsSheet
+    extends StatefulWidget {
+  final AnnouncementData announcement;
+
+  const _AnnouncementCommentsSheet({
+    required this.announcement,
+  });
+
+  @override
+  State<_AnnouncementCommentsSheet>
+  createState() =>
+      _AnnouncementCommentsSheetState();
+}
+
+class _AnnouncementCommentsSheetState
+    extends State<_AnnouncementCommentsSheet> {
+  late final TextEditingController
+  _controller;
+
+  final FocusNode _commentFocusNode =
+  FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller =
+        TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    // Remove focus before disposing the
+    // controller/focus node.
+    _commentFocusNode.unfocus();
+
+    _commentFocusNode.dispose();
+
+    _controller.dispose();
+
+    super.dispose();
+  }
+
+  void _addComment() {
+    final String text =
+    _controller.text.trim();
+
+    if (text.isEmpty) {
+      return;
+    }
+
+    AnnouncementInteractionStore
+        .addComment(
+      widget.announcement.title,
+      text,
+    );
+
+    _controller.clear();
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final List<String> comments =
+    AnnouncementInteractionStore
+        .commentsFor(
+      widget.announcement.title,
+    );
+
+    final double keyboardHeight =
+        MediaQuery.viewInsetsOf(context)
+            .bottom;
+
+    return SafeArea(
+      top: false,
+
+      child: Padding(
+        padding: EdgeInsets.only(
+          bottom: keyboardHeight,
+        ),
+
+        child: Container(
+          height:
+          MediaQuery.sizeOf(context)
+              .height *
+              .65,
+
+          decoration:
+          const BoxDecoration(
+            color: Colors.white,
+
+            borderRadius:
+            BorderRadius.vertical(
+              top: Radius.circular(25),
             ),
-            child: Container(
-              height: MediaQuery.of(context)
-                  .size
-                  .height *
-                  .65,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius:
-                BorderRadius.vertical(
-                  top: Radius.circular(25),
+          ),
+
+          child: Column(
+            children: [
+
+              // ------------------------------------------------
+              // DRAG HANDLE
+              // ------------------------------------------------
+
+              const SizedBox(
+                height: 12,
+              ),
+
+              Container(
+                width: 45,
+                height: 5,
+
+                decoration:
+                BoxDecoration(
+                  color:
+                  Colors.grey.shade300,
+
+                  borderRadius:
+                  BorderRadius.circular(
+                    10,
+                  ),
                 ),
               ),
-              child: Column(
-                children: [
-                  const SizedBox(height: 12),
 
-                  Container(
-                    width: 45,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color:
-                      Colors.grey.shade300,
-                      borderRadius:
-                      BorderRadius.circular(10),
-                    ),
-                  ),
+              // ------------------------------------------------
+              // COMMENTS HEADER
+              // ------------------------------------------------
 
-                  Padding(
-                    padding:
-                    const EdgeInsets.all(18),
-                    child: Row(
-                      children: [
-                        const Expanded(
-                          child: Text(
-                            'Comments',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight:
-                              FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          '${comments.length}',
-                          style: TextStyle(
-                            color:
-                            Colors.grey.shade600,
-                            fontWeight:
-                            FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+              Padding(
+                padding:
+                const EdgeInsets.all(
+                  18,
+                ),
 
-                  const Divider(height: 1),
+                child: Row(
+                  children: [
 
-                  Expanded(
-                    child: comments.isEmpty
-                        ? const Center(
+                    const Expanded(
                       child: Text(
-                        'No comments yet.\nBe the first to comment.',
-                        textAlign:
-                        TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.grey,
+                        'Comments',
+
+                        style:
+                        TextStyle(
+                          fontSize: 20,
+                          fontWeight:
+                          FontWeight.bold,
                         ),
                       ),
-                    )
-                        : ListView.builder(
+                    ),
+
+                    Text(
+                      '${comments.length}',
+
+                      style: TextStyle(
+                        color: Colors
+                            .grey
+                            .shade600,
+
+                        fontWeight:
+                        FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const Divider(
+                height: 1,
+              ),
+
+              // ------------------------------------------------
+              // COMMENT LIST
+              // ------------------------------------------------
+
+              Expanded(
+                child: comments.isEmpty
+                    ? const Center(
+                  child: Text(
+                    'No comments yet.\nBe the first to comment.',
+
+                    textAlign:
+                    TextAlign.center,
+
+                    style:
+                    TextStyle(
+                      color:
+                      Colors.grey,
+                    ),
+                  ),
+                )
+                    : ListView.builder(
+                  keyboardDismissBehavior:
+                  ScrollViewKeyboardDismissBehavior
+                      .onDrag,
+
+                  padding:
+                  const EdgeInsets
+                      .all(
+                    15,
+                  ),
+
+                  itemCount:
+                  comments.length,
+
+                  itemBuilder:
+                      (context,
+                      index) {
+                    return Container(
+                      margin:
+                      const EdgeInsets
+                          .only(
+                        bottom: 10,
+                      ),
+
                       padding:
                       const EdgeInsets
-                          .all(15),
-                      itemCount:
-                      comments.length,
-                      itemBuilder:
-                          (context, index) {
-                        return Container(
-                          margin:
-                          const EdgeInsets
-                              .only(
-                            bottom: 10,
-                          ),
-                          padding:
-                          const EdgeInsets
-                              .all(13),
-                          decoration:
-                          BoxDecoration(
-                            color:
-                            const Color(
-                              0xfff5f7fb,
+                          .all(
+                        13,
+                      ),
+
+                      decoration:
+                      BoxDecoration(
+                        color:
+                        const Color(
+                          0xfff5f7fb,
+                        ),
+
+                        borderRadius:
+                        BorderRadius
+                            .circular(
+                          14,
+                        ),
+                      ),
+
+                      child: Row(
+                        crossAxisAlignment:
+                        CrossAxisAlignment
+                            .start,
+
+                        children: [
+
+                          const CircleAvatar(
+                            radius: 17,
+
+                            child:
+                            Icon(
+                              Icons
+                                  .person,
+                              size: 18,
                             ),
+                          ),
+
+                          const SizedBox(
+                            width: 10,
+                          ),
+
+                          Expanded(
+                            child:
+                            Text(
+                              comments[
+                              index],
+
+                              style:
+                              const TextStyle(
+                                fontSize:
+                                14,
+                                height:
+                                1.4,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              // ------------------------------------------------
+              // COMMENT INPUT
+              // ------------------------------------------------
+
+              Padding(
+                padding:
+                const EdgeInsets
+                    .fromLTRB(
+                  12,
+                  8,
+                  12,
+                  12,
+                ),
+
+                child: Row(
+                  crossAxisAlignment:
+                  CrossAxisAlignment
+                      .end,
+
+                  children: [
+
+                    Expanded(
+                      child:
+                      TextField(
+                        controller:
+                        _controller,
+
+                        focusNode:
+                        _commentFocusNode,
+
+                        textInputAction:
+                        TextInputAction
+                            .send,
+
+                        minLines: 1,
+
+                        maxLines: 4,
+
+                        decoration:
+                        InputDecoration(
+                          hintText:
+                          'Write a comment...',
+
+                          border:
+                          OutlineInputBorder(
                             borderRadius:
                             BorderRadius
                                 .circular(
                               14,
                             ),
                           ),
-                          child: Row(
-                            crossAxisAlignment:
-                            CrossAxisAlignment
-                                .start,
-                            children: [
-                              const CircleAvatar(
-                                radius: 17,
-                                child: Icon(
-                                  Icons.person,
-                                  size: 18,
-                                ),
-                              ),
-
-                              const SizedBox(
-                                width: 10,
-                              ),
-
-                              Expanded(
-                                child: Text(
-                                  comments[index],
-                                  style:
-                                  const TextStyle(
-                                    fontSize: 14,
-                                    height: 1.4,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-
-                  Padding(
-                    padding:
-                    const EdgeInsets.fromLTRB(
-                      12,
-                      8,
-                      12,
-                      12,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: controller,
-                            textInputAction:
-                            TextInputAction.send,
-                            decoration:
-                            InputDecoration(
-                              hintText:
-                              'Write a comment...',
-                              border:
-                              OutlineInputBorder(
-                                borderRadius:
-                                BorderRadius
-                                    .circular(
-                                  14,
-                                ),
-                              ),
-                            ),
-                            onSubmitted: (_) {
-                              final String text =
-                              controller.text
-                                  .trim();
-
-                              if (text.isEmpty) {
-                                return;
-                              }
-
-                              AnnouncementInteractionStore
-                                  .addComment(
-                                announcement.title,
-                                text,
-                              );
-
-                              controller.clear();
-
-                              setState(() {});
-                            },
-                          ),
                         ),
 
-                        const SizedBox(width: 8),
-
-                        IconButton(
-                          style:
-                          IconButton.styleFrom(
-                            backgroundColor:
-                            const Color(
-                              0xff4f46e5,
-                            ),
-                            foregroundColor:
-                            Colors.white,
-                          ),
-                          onPressed: () {
-                            final String text =
-                            controller.text
-                                .trim();
-
-                            if (text.isEmpty) {
-                              return;
-                            }
-
-                            AnnouncementInteractionStore
-                                .addComment(
-                              announcement.title,
-                              text,
-                            );
-
-                            controller.clear();
-
-                            setState(() {});
-                          },
-                          icon: const Icon(
-                            Icons.send,
-                          ),
-                        ),
-                      ],
+                        onSubmitted:
+                            (_) {
+                          _addComment();
+                        },
+                      ),
                     ),
-                  ),
-                ],
+
+                    const SizedBox(
+                      width: 8,
+                    ),
+
+                    IconButton(
+                      style:
+                      IconButton
+                          .styleFrom(
+                        backgroundColor:
+                        const Color(
+                          0xff4f46e5,
+                        ),
+
+                        foregroundColor:
+                        Colors.white,
+                      ),
+
+                      onPressed:
+                      _addComment,
+
+                      icon:
+                      const Icon(
+                        Icons.send,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
-        },
-      );
-    },
-  );
-
-  controller.dispose();
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 // ============================================================
@@ -914,9 +1311,12 @@ Future<void> shareAnnouncement(
       subject: announcement.title,
     );
   } catch (e) {
-    if (!context.mounted) return;
+    if (!context.mounted) {
+      return;
+    }
 
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
       const SnackBar(
         content: Text(
           'Unable to open sharing options.',
@@ -937,8 +1337,10 @@ Future<void> openAnnouncementAttachment(
   final String? path =
       announcement.attachmentPath;
 
-  if (path == null || path.trim().isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
+  if (path == null ||
+      path.trim().isEmpty) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
       const SnackBar(
         backgroundColor: Colors.red,
         content: Text(
@@ -953,9 +1355,12 @@ Future<void> openAnnouncementAttachment(
   final File file = File(path);
 
   if (!await file.exists()) {
-    if (!context.mounted) return;
+    if (!context.mounted) {
+      return;
+    }
 
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
       const SnackBar(
         backgroundColor: Colors.red,
         content: Text(
@@ -971,12 +1376,18 @@ Future<void> openAnnouncementAttachment(
     final result =
     await OpenFilex.open(path);
 
-    if (!context.mounted) return;
+    if (!context.mounted) {
+      return;
+    }
 
-    if (result.type != ResultType.done) {
-      ScaffoldMessenger.of(context).showSnackBar(
+    if (result.type !=
+        ResultType.done) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
         SnackBar(
-          backgroundColor: Colors.red,
+          backgroundColor:
+          Colors.red,
+
           content: Text(
             result.message.isNotEmpty
                 ? result.message
@@ -986,9 +1397,12 @@ Future<void> openAnnouncementAttachment(
       );
     }
   } catch (e) {
-    if (!context.mounted) return;
+    if (!context.mounted) {
+      return;
+    }
 
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
       const SnackBar(
         backgroundColor: Colors.red,
         content: Text(
@@ -1012,7 +1426,8 @@ Future<void> downloadAnnouncementAttachment(
 
   if (sourcePath == null ||
       sourcePath.trim().isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
       const SnackBar(
         backgroundColor: Colors.red,
         content: Text(
@@ -1029,9 +1444,12 @@ Future<void> downloadAnnouncementAttachment(
     File(sourcePath);
 
     if (!await sourceFile.exists()) {
-      if (!context.mounted) return;
+      if (!context.mounted) {
+        return;
+      }
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
         const SnackBar(
           backgroundColor: Colors.red,
           content: Text(
@@ -1058,7 +1476,9 @@ Future<void> downloadAnnouncementAttachment(
     String fileName =
         announcement.attachmentName ??
             sourceFile.path
-                .split(Platform.pathSeparator)
+                .split(
+              Platform.pathSeparator,
+            )
                 .last;
 
     if (fileName.trim().isEmpty) {
@@ -1072,19 +1492,24 @@ Future<void> downloadAnnouncementAttachment(
           '$fileName',
     );
 
-    if (await destinationFile.exists()) {
+    if (await destinationFile
+        .exists()) {
       final String baseName =
       fileName.contains('.')
           ? fileName.substring(
         0,
-        fileName.lastIndexOf('.'),
+        fileName.lastIndexOf(
+          '.',
+        ),
       )
           : fileName;
 
       final String extension =
       fileName.contains('.')
           ? fileName.substring(
-        fileName.lastIndexOf('.'),
+        fileName.lastIndexOf(
+          '.',
+        ),
       )
           : '';
 
@@ -1100,18 +1525,25 @@ Future<void> downloadAnnouncementAttachment(
       destinationFile.path,
     );
 
-    if (!context.mounted) return;
+    if (!context.mounted) {
+      return;
+    }
 
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
       SnackBar(
         backgroundColor:
         const Color(0xff16a34a),
+
         content: Text(
           'Downloaded to ${downloadsDirectory.path}',
         ),
+
         action: SnackBarAction(
           label: 'OPEN',
+
           textColor: Colors.white,
+
           onPressed: () {
             OpenFilex.open(
               destinationFile.path,
@@ -1121,9 +1553,12 @@ Future<void> downloadAnnouncementAttachment(
       ),
     );
   } catch (e) {
-    if (!context.mounted) return;
+    if (!context.mounted) {
+      return;
+    }
 
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
       const SnackBar(
         backgroundColor: Colors.red,
         content: Text(
