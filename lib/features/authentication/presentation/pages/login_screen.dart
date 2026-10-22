@@ -90,13 +90,15 @@ class _LoginScreenState extends State<LoginScreen>
 
                   const SizedBox(height: 8),
 
+
                   Text(
-                    "Login to Kishkinda University Transport Management System",
+                    "Login to AssistBus",
                     style: TextStyle(
                       fontSize: 15,
                       color: Colors.grey.shade700,
                     ),
                   ),
+
 
                   const SizedBox(height: 30),
 
