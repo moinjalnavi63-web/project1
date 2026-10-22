@@ -132,7 +132,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       SizedBox(height: 12),
 
                       Text(
-                        "University\nTransport Management System",
+                        "Assist Bus",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 23,
