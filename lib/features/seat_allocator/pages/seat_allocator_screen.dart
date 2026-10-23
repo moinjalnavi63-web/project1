@@ -1,16 +1,16 @@
+
 import 'package:flutter/material.dart';
 
 import '../data/demo_seats.dart';
 import '../models/seat_model.dart';
-
 import '../widgets/bus_info_card.dart';
 import '../widgets/legend_card.dart';
 import '../widgets/seat_statistics.dart';
-import '../widgets/attendance_confirmation_card.dart';
 import '../widgets/seat_allocation_status_card.dart';
 import '../buddy_system/pages/buddy_system_screen.dart';
 import '../widgets/last_row_seats_button.dart';
 import 'seat_layout_screen.dart';
+import 'student_pass_scanner_screen.dart';
 
 class SeatAllocatorScreen extends StatefulWidget {
   const SeatAllocatorScreen({super.key});
@@ -20,21 +20,38 @@ class SeatAllocatorScreen extends StatefulWidget {
       _SeatAllocatorScreenState();
 }
 
-class _SeatAllocatorScreenState
-    extends State<SeatAllocatorScreen> {
-  // null = user has not answered attendance yet
+class _SeatAllocatorScreenState extends State<SeatAllocatorScreen> {
   bool? comingToday;
+  String allocatedSeat = '';
+  String? scannedStudentId;
+  String? scanMessage;
+  bool isScanning = false;
 
-  // Always keep this as a non-null String.
-  String allocatedSeat = "";
+  final String busId = '1';
 
-  // ==========================================================
-  // BUS / TRIP INFORMATION
-  // ==========================================================
+  // DEMO SCHEDULE ONLY:
+  // Replace with the signed-in student's actual assigned stop time
+  // when the existing route schedule data is connected.
+  static const int scheduledStopHour = 7;
+  static const int scheduledStopMinute = 40;
 
-  // Currently using Bus 1 because your existing screen
-  // displays Bus Number 1.
-  final String busId = "1";
+  DateTime get scheduledStopDateTime {
+    final now = DateTime.now();
+
+    return DateTime(
+      now.year,
+      now.month,
+      now.day,
+      scheduledStopHour,
+      scheduledStopMinute,
+    );
+  }
+
+  DateTime get scannerOpensAt =>
+      scheduledStopDateTime.subtract(const Duration(minutes: 5));
+
+  DateTime get scannerClosesAt =>
+      scheduledStopDateTime.add(const Duration(minutes: 5));
 
   String get tripDate {
     final now = DateTime.now();
@@ -44,35 +61,144 @@ class _SeatAllocatorScreenState
         '${now.day.toString().padLeft(2, '0')}';
   }
 
-  // ==========================================================
-  // ATTENDANCE
-  // ==========================================================
+  String formatTime(DateTime value) {
+    final hour = value.hour % 12 == 0 ? 12 : value.hour % 12;
+    final minute = value.minute.toString().padLeft(2, '0');
+    final period = value.hour >= 12 ? 'PM' : 'AM';
 
-  void markAttendance(bool value) {
+    return '$hour:$minute $period';
+  }
+
+  bool get isWithinScanWindow {
+    final now = DateTime.now();
+
+    return !now.isBefore(scannerOpensAt) &&
+        !now.isAfter(scannerClosesAt);
+  }
+
+  String get scanWindowStatus {
+    final now = DateTime.now();
+
+    if (now.isBefore(scannerOpensAt)) {
+      return 'Scanner opens at ${formatTime(scannerOpensAt)}';
+    }
+
+    if (now.isAfter(scannerClosesAt)) {
+      return 'Scanning closed at ${formatTime(scannerClosesAt)}';
+    }
+
+    return 'Scanner is open';
+  }
+
+  Future<void> openBarcodeScanner() async {
+    if (isScanning) return;
+
+    if (!isWithinScanWindow) {
+      setState(() {
+        scanMessage = scanWindowStatus;
+      });
+      return;
+    }
+
     setState(() {
-      comingToday = value;
+      scanMessage = null;
+      isScanning = true;
+    });
 
-      if (value == true) {
-        // Find a student seat.
-        // Faculty seats are NEVER allocated to students.
-        final studentSeat = demoSeats.firstWhere(
-              (seat) =>
-          seat.zone == SeatZone.girls ||
-              seat.zone == SeatZone.boys,
-          orElse: () => demoSeats.first,
-        );
+    try {
+      final scannedCode = await Navigator.push<String>(
+        context,
+        MaterialPageRoute(
+          builder: (_) => StudentPassScannerScreen(
+            opensAt: scannerOpensAt,
+            closesAt: scannerClosesAt,
+          ),
+        ),
+      );
 
-        allocatedSeat = studentSeat.seatId;
-      } else {
-        // User is not coming.
-        allocatedSeat = "";
+      if (!mounted || scannedCode == null) return;
+
+      processScannedBarcode(scannedCode);
+    } finally {
+      if (mounted) {
+        setState(() {
+          isScanning = false;
+        });
       }
+    }
+  }
+
+  void processScannedBarcode(String barcode) {
+    final normalizedCode = barcode.trim();
+
+    if (normalizedCode.isEmpty) {
+      setState(() {
+        scanMessage = 'The scanned barcode is empty.';
+      });
+      return;
+    }
+
+    // Check the time again after returning from the scanner.
+    if (!isWithinScanWindow) {
+      setState(() {
+        scanMessage =
+        'Scanning is not allowed outside your stop time window.';
+      });
+      return;
+    }
+
+    // This demo uses the existing SeatModel.id as the barcode value.
+    // Connect this lookup to real student/pass data for production.
+    final matchingSeat = demoSeats.cast<SeatModel?>().firstWhere(
+          (seat) =>
+      seat != null &&
+          seat.id.trim().toLowerCase() ==
+              normalizedCode.toLowerCase(),
+      orElse: () => null,
+    );
+
+    if (matchingSeat == null) {
+      setState(() {
+        scanMessage =
+        'Student pass not found. Please scan a valid registered pass.';
+      });
+      return;
+    }
+
+    // Students must never receive faculty seats.
+    if (matchingSeat.zone == SeatZone.faculty) {
+      setState(() {
+        scanMessage =
+        'This pass is not eligible for student seat allocation.';
+      });
+      return;
+    }
+
+    // Avoid repeated scans for the same student during this screen session.
+    if (scannedStudentId == normalizedCode) {
+      setState(() {
+        scanMessage = 'This pass has already been scanned.';
+      });
+      return;
+    }
+
+    setState(() {
+      scannedStudentId = normalizedCode;
+      allocatedSeat = matchingSeat.seatId;
+      comingToday = true;
+      scanMessage =
+      'Pass scanned successfully. Seat ${matchingSeat.seatId} assigned.';
     });
   }
 
-  // ==========================================================
-  // OPEN BUDDY SYSTEM
-  // ==========================================================
+  void resetAttendance() {
+    setState(() {
+      comingToday = null;
+      allocatedSeat = '';
+      scannedStudentId = null;
+      scanMessage = null;
+    });
+  }
 
   void openBuddySystem() {
     Navigator.push(
@@ -83,10 +209,6 @@ class _SeatAllocatorScreenState
     );
   }
 
-  // ==========================================================
-  // VIEW
-  // ==========================================================
-
   @override
   Widget build(BuildContext context) {
     const int totalSeats = 60;
@@ -94,15 +216,12 @@ class _SeatAllocatorScreenState
     const int girlsSeats = 25;
     const int boysSeats = 27;
 
-    // Number of seats currently present in demo data.
     final int occupiedSeats = demoSeats.length;
-
     final int availableSeats =
-        totalSeats - occupiedSeats;
+    (totalSeats - occupiedSeats).clamp(0, totalSeats);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF6F8FC),
-
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -115,29 +234,19 @@ class _SeatAllocatorScreenState
             end: Alignment.bottomRight,
           ),
         ),
-
         child: SafeArea(
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-
             child: Column(
               children: [
-                // =================================================
-                // BUS INFORMATION
-                // =================================================
-
                 BusInfoCard(
-                  busNumber: "1",
-                  routeName: "Hospet → KUTS",
+                  busNumber: '1',
+                  routeName: 'Hospet → KUTS',
                   totalSeats: totalSeats,
                   facultySeats: facultySeats,
                   girlsSeats: girlsSeats,
                   boysSeats: boysSeats,
                 ),
-
-                // =================================================
-                // SEAT STATISTICS
-                // =================================================
 
                 SeatStatistics(
                   occupiedSeats: occupiedSeats,
@@ -145,91 +254,51 @@ class _SeatAllocatorScreenState
                 ),
 
                 const SizedBox(height: 15),
-
-                // =================================================
-                // LEGEND
-                // =================================================
-
                 const LegendCard(),
-
                 const SizedBox(height: 15),
 
-                // =================================================
-                // ATTENDANCE
-                // =================================================
-
-                AttendanceConfirmationCard(
-                  onYes: () {
-                    markAttendance(true);
-                  },
-                  onNo: () {
-                    markAttendance(false);
-                  },
-                ),
+                // STUDENT BARCODE ATTENDANCE
+                _buildBarcodeAttendanceCard(),
 
                 const SizedBox(height: 16),
 
-                // =================================================
                 // BUDDY SYSTEM + LAST ROW SEATS
-                // =================================================
-
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
                     children: [
-                      // =================================================
-                      // BUDDY SYSTEM BUTTON
-                      // =================================================
-
                       Expanded(
                         child: SizedBox(
                           height: 55,
                           child: ElevatedButton.icon(
                             icon: const Text(
-                              "🤝",
-                              style: TextStyle(
-                                fontSize: 21,
-                              ),
+                              '🤝',
+                              style: TextStyle(fontSize: 21),
                             ),
-
                             label: const Text(
-                              "Buddy System",
+                              'Buddy System',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-
                             style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                              const Color(0xFF7C3AED),
+                              backgroundColor: const Color(0xFF7C3AED),
                               foregroundColor: Colors.white,
                               elevation: 3,
-                              padding:
-                              const EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
                               ),
-                              shape:
-                              RoundedRectangleBorder(
-                                borderRadius:
-                                BorderRadius.circular(15),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
                               ),
                             ),
-
                             onPressed: openBuddySystem,
                           ),
                         ),
                       ),
-
                       const SizedBox(width: 12),
-
-                      // =================================================
-                      // LAST ROW SEATS BUTTON
-                      // =================================================
-
                       Expanded(
                         child: SizedBox(
                           height: 55,
@@ -245,74 +314,46 @@ class _SeatAllocatorScreenState
 
                 const SizedBox(height: 16),
 
-                // =================================================
-                // ALLOCATION STATUS
-                // =================================================
-
                 SeatAllocationStatusCard(
                   comingToday: comingToday,
-
-                  // Never pass null.
                   seatNumber: allocatedSeat,
                 ),
 
                 const SizedBox(height: 20),
 
-                // =================================================
-                // VIEW ALL SEATS
-                // =================================================
-
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: SizedBox(
                     width: double.infinity,
                     height: 55,
                     child: ElevatedButton.icon(
-                      icon: const Icon(
-                        Icons.event_seat,
-                      ),
-
+                      icon: const Icon(Icons.event_seat),
                       label: const Text(
-                        "View All Seats",
+                        'View All Seats',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                        const Color(0xFF5B5FEF),
-
+                        backgroundColor: const Color(0xFF5B5FEF),
                         foregroundColor: Colors.white,
-
                         disabledBackgroundColor:
                         const Color(0xFFB9BCEB),
-
-                        disabledForegroundColor:
-                        Colors.white70,
-
+                        disabledForegroundColor: Colors.white70,
                         shape: RoundedRectangleBorder(
-                          borderRadius:
-                          BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(15),
                         ),
                       ),
-
-                      // Button works only after YES.
                       onPressed:
-                      comingToday == true &&
-                          allocatedSeat.isNotEmpty
+                      comingToday == true && allocatedSeat.isNotEmpty
                           ? () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) =>
-                                SeatLayoutScreen(
-                                  allocatedSeat:
-                                  allocatedSeat,
-                                ),
+                            builder: (_) => SeatLayoutScreen(
+                              allocatedSeat: allocatedSeat,
+                            ),
                           ),
                         );
                       }
@@ -330,173 +371,126 @@ class _SeatAllocatorScreenState
     );
   }
 
-  // ==========================================================
-  // BUDDY SYSTEM CARD
-  // ==========================================================
-
-  Widget _buildBuddySystemCard() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
+  Widget _buildBarcodeAttendanceCard() {
+    return Card(
+      margin: const EdgeInsets.symmetric(
         horizontal: 16,
+        vertical: 10,
       ),
-      child: Container(
-        width: double.infinity,
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Padding(
         padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: .95),
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(
-            color: const Color(0xFFE0E7FF),
-            width: 1.2,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: .07),
-              blurRadius: 12,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
         child: Column(
-          crossAxisAlignment:
-          CrossAxisAlignment.start,
           children: [
-            // ==================================================
-            // TITLE
-            // ==================================================
-
-            Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFF5B5FEF),
-                        Color(0xFF7C83FD),
-                      ],
-                    ),
-                    borderRadius:
-                    BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF5B5FEF)
-                            .withValues(alpha: .20),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.people_alt_rounded,
-                    color: Colors.white,
-                    size: 26,
-                  ),
-                ),
-                const SizedBox(width: 13),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "🤝 Buddy System",
-                        style: TextStyle(
-                          color: Color(0xFF111827),
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        "Sit together with your friends",
-                        style: TextStyle(
-                          color: Color(0xFF4B5563),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            const Icon(
+              Icons.qr_code_scanner_rounded,
+              color: Color(0xFF5B5FEF),
+              size: 46,
             ),
-
-            const SizedBox(height: 15),
-
-            // ==================================================
-            // DESCRIPTION
-            // ==================================================
-
+            const SizedBox(height: 12),
+            const Text(
+              "Today's Bus Attendance",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Scan the barcode on your university bus pass '
+                  'to confirm boarding and receive your seat.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, height: 1.4),
+            ),
+            const SizedBox(height: 12),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(13),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFF5F3FF),
-                borderRadius:
-                BorderRadius.circular(14),
+                color: const Color(0xFFF3F4FF),
+                borderRadius: BorderRadius.circular(12),
               ),
-              child: const Row(
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
+              child: Column(
                 children: [
-                  Icon(
-                    Icons.info_outline_rounded,
-                    color: Color(0xFF5B5FEF),
-                    size: 20,
+                  Text(
+                    'Scheduled stop: ${formatTime(scheduledStopDateTime)}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                  SizedBox(width: 9),
-                  Expanded(
-                    child: Text(
-                      "Create or join a group with 1 or 2 friends "
-                          "and try to get seats together.",
-                      style: TextStyle(
-                        color: Color(0xFF374151),
-                        fontSize: 12,
-                        height: 1.4,
-                        fontWeight: FontWeight.w500,
-                      ),
+                  const SizedBox(height: 5),
+                  Text(
+                    'Scan window: ${formatTime(scannerOpensAt)} - '
+                        '${formatTime(scannerClosesAt)}',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    scanWindowStatus,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: isWithinScanWindow
+                          ? Colors.green.shade700
+                          : Colors.orange.shade800,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
             ),
-
-            const SizedBox(height: 14),
-
-            // ==================================================
-            // OPEN BUTTON
-            // ==================================================
-
+            const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
-              height: 50,
+              height: 52,
               child: ElevatedButton.icon(
-                onPressed: openBuddySystem,
-                icon: const Icon(
-                  Icons.arrow_forward_rounded,
-                  size: 21,
+                onPressed: isScanning ? null : openBarcodeScanner,
+                icon: Icon(
+                  isScanning
+                      ? Icons.hourglass_top
+                      : Icons.document_scanner_outlined,
                 ),
-                label: const Text(
-                  "Open Buddy System",
-                  style: TextStyle(
-                    fontSize: 15,
+                label: Text(
+                  isScanning ? 'Opening Scanner...' : 'Scan Bus Pass',
+                  style: const TextStyle(
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                  const Color(0xFF5B5FEF),
+                  backgroundColor: const Color(0xFF5B5FEF),
                   foregroundColor: Colors.white,
-                  elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                    BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                 ),
               ),
             ),
+            if (scanMessage != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                scanMessage!,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: scanMessage!.contains('successfully')
+                      ? Colors.green.shade700
+                      : Colors.red.shade700,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+            if (comingToday == true) ...[
+              const SizedBox(height: 10),
+              TextButton.icon(
+                onPressed: resetAttendance,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Reset demo attendance'),
+              ),
+            ],
           ],
         ),
       ),
