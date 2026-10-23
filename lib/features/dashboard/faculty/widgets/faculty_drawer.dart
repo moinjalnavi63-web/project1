@@ -1,7 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
-// Login Screen
 import '../../../authentication/presentation/pages/login_screen.dart';
+import '../../../dashboard/faculty/widgets/faculty_profile_photo.dart';
 
 class FacultyDrawer extends StatelessWidget {
   final int selectedIndex;
@@ -18,13 +20,14 @@ class FacultyDrawer extends StatelessWidget {
     return Drawer(
       child: Column(
         children: [
+          // FACULTY PROFILE HEADER
           Container(
             width: double.infinity,
             padding: const EdgeInsets.only(
               top: 45,
-              left: 16,
+              left: 20,
               right: 16,
-              bottom: 20,
+              bottom: 22,
             ),
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -53,37 +56,81 @@ class FacultyDrawer extends StatelessWidget {
                   },
                 ),
 
-                const SizedBox(height: 15),
+                const SizedBox(height: 18),
 
-                const CircleAvatar(
-                  radius: 35,
-                  backgroundColor: Colors.white,
-                  child: Icon(
-                    Icons.person,
-                    size: 40,
-                    color: Color(0xFF5B5FEF),
-                  ),
-                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ValueListenableBuilder<File?>(
+                      valueListenable: facultyProfilePhotoNotifier,
+                      builder: (context, photo, child) {
+                        return Container(
+                          width: 70,
+                          height: 70,
+                          padding: const EdgeInsets.all(3),
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                          ),
+                          child: ClipOval(
+                            child: photo != null && photo.existsSync()
+                                ? Image.file(
+                              photo,
+                              fit: BoxFit.cover,
+                            )
+                                : const CircleAvatar(
+                              backgroundColor: Colors.white,
+                              child: Icon(
+                                Icons.person,
+                                size: 40,
+                                color: Color(0xFF5B5FEF),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
 
-                const SizedBox(height: 15),
+                    const SizedBox(width: 12),
 
-                const Text(
-                  "Faculty Name",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                const SizedBox(height: 5),
-
-                const Text(
-                  "Faculty ID",
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 15,
-                  ),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Faculty Name',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 7),
+                          _FacultyDetail(
+                            label: 'ID',
+                            value: 'Faculty ID',
+                          ),
+                          SizedBox(height: 4),
+                          _FacultyDetail(
+                            label: 'Bus No.',
+                            value: 'Not assigned',
+                          ),
+                          SizedBox(height: 4),
+                          _FacultyDetail(
+                            label: 'Route',
+                            value: 'Not assigned',
+                          ),
+                          SizedBox(height: 4),
+                          _FacultyDetail(
+                            label: 'Stop',
+                            value: 'Not assigned',
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -91,47 +138,37 @@ class FacultyDrawer extends StatelessWidget {
 
           _drawerItem(
             icon: Icons.person_outline,
-            title: "Profile",
+            title: 'Profile',
             index: 1,
           ),
-
           _drawerItem(
             icon: Icons.directions_bus_outlined,
-            title: "Bus Directory",
+            title: 'Bus Directory',
             index: 2,
           ),
-
           _drawerItem(
             icon: Icons.event_seat_outlined,
-            title: "Seat Allocator",
+            title: 'Seat Allocator',
             index: 3,
           ),
-
           _drawerItem(
             icon: Icons.groups_outlined,
-            title: "Bus Group",
+            title: 'Bus Group',
             index: 4,
           ),
-
           _drawerItem(
             icon: Icons.location_on_outlined,
-            title: "Live GPS Tracking",
+            title: 'Live GPS Tracking',
             index: 5,
           ),
-
           _drawerItem(
             icon: Icons.confirmation_number_outlined,
-            title: "Raise Token",
+            title: 'Raise Token',
             index: 6,
           ),
 
           const Spacer(),
-
           const Divider(),
-
-          // =====================================================
-          // LOGOUT
-          // =====================================================
 
           ListTile(
             leading: const Icon(
@@ -139,7 +176,7 @@ class FacultyDrawer extends StatelessWidget {
               color: Colors.red,
             ),
             title: const Text(
-              "Logout",
+              'Logout',
               style: TextStyle(
                 color: Colors.red,
                 fontWeight: FontWeight.bold,
@@ -147,7 +184,6 @@ class FacultyDrawer extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context);
-
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(
                   builder: (_) => const LoginScreen(),
@@ -182,16 +218,38 @@ class FacultyDrawer extends StatelessWidget {
       title: Text(
         title,
         style: TextStyle(
-          fontWeight:
-          selected ? FontWeight.bold : FontWeight.w500,
+          fontWeight: selected
+              ? FontWeight.bold
+              : FontWeight.w500,
           color: selected
               ? const Color(0xFF5B5FEF)
               : Colors.black87,
         ),
       ),
-      onTap: () {
-        onItemSelected(index);
-      },
+      onTap: () => onItemSelected(index),
+    );
+  }
+}
+
+class _FacultyDetail extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _FacultyDetail({
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      '$label: $value',
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+        color: Colors.white70,
+        fontSize: 12,
+      ),
     );
   }
 }

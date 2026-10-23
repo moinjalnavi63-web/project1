@@ -1,17 +1,13 @@
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../widgets/student_profile_header.dart';
+
 // ============================================================
 // STUDENT PROFILE DATA
 // ============================================================
-//
-// Student profile information.
-//
-// IMPORTANT:
-// Only profilePhoto is changeable by the student.
-// All other information remains view-only.
-//
 
 class StudentProfileData {
   final String name;
@@ -33,10 +29,6 @@ class StudentProfileData {
     required this.route,
     this.profilePhoto,
   });
-
-  // ============================================================
-  // COPY WITH
-  // ============================================================
 
   StudentProfileData copyWith({
     String? name,
@@ -63,13 +55,8 @@ class StudentProfileData {
 
 // ============================================================
 // CURRENT STUDENT PROFILE
+// Existing student data preserved.
 // ============================================================
-//
-// Keep your existing student data here.
-//
-// Only profilePhoto is updated when the student changes
-// their profile picture.
-//
 
 StudentProfileData currentStudentProfile =
 const StudentProfileData(
@@ -85,44 +72,27 @@ const StudentProfileData(
 
 // ============================================================
 // UPDATE STUDENT PROFILE PHOTO
+// Only the profile photo can be changed.
 // ============================================================
-//
-// IMPORTANT:
-// Student is NOT allowed to change name, USN, department,
-// admission year, current year, bus number or route.
-//
-// Only the profile photo is updated.
-//
 
-void updateCurrentStudentProfilePhoto(
-    String? profilePhoto,
-    ) {
-  currentStudentProfile =
-      StudentProfileData(
-        name: currentStudentProfile.name,
-        usn: currentStudentProfile.usn,
-        department: currentStudentProfile.department,
-        admissionYear:
-        currentStudentProfile.admissionYear,
-        currentYear:
-        currentStudentProfile.currentYear,
-        busNumber:
-        currentStudentProfile.busNumber,
-        route:
-        currentStudentProfile.route,
-        profilePhoto: profilePhoto,
-      );
+void updateCurrentStudentProfilePhoto(String? profilePhoto) {
+  currentStudentProfile = StudentProfileData(
+    name: currentStudentProfile.name,
+    usn: currentStudentProfile.usn,
+    department: currentStudentProfile.department,
+    admissionYear: currentStudentProfile.admissionYear,
+    currentYear: currentStudentProfile.currentYear,
+    busNumber: currentStudentProfile.busNumber,
+    route: currentStudentProfile.route,
+    profilePhoto: profilePhoto,
+  );
 }
 
 // ============================================================
 // STUDENT PROFILE AVATAR
+// Shared with the student drawer.
+// Rebuilds automatically when the photo notifier changes.
 // ============================================================
-//
-// This widget is used by the Student Drawer.
-//
-// If the student has uploaded a photo, the photo is displayed.
-// Otherwise, the default student avatar is displayed.
-//
 
 class StudentProfileAvatar extends StatelessWidget {
   final double radius;
@@ -134,74 +104,65 @@ class StudentProfileAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final profile =
-        currentStudentProfile;
+    return ValueListenableBuilder<File?>(
+      valueListenable: studentProfilePhotoNotifier,
+      builder: (context, savedPhoto, child) {
+        final profile = currentStudentProfile;
 
-    // ==========================================================
-    // PROFILE PHOTO
-    // ==========================================================
+        // Prefer the permanently saved photo.
+        if (savedPhoto != null && savedPhoto.existsSync()) {
+          return CircleAvatar(
+            radius: radius,
+            backgroundColor: const Color(0xffede9fe),
+            backgroundImage: FileImage(savedPhoto),
+          );
+        }
 
-    if (profile.profilePhoto != null &&
-        profile.profilePhoto!.trim().isNotEmpty) {
-      final String photoPath =
-      profile.profilePhoto!.trim();
+        // Fall back to the photo path stored in profile data.
+        final String? photoPath = profile.profilePhoto;
 
-      final File photoFile =
-      File(photoPath);
+        if (photoPath != null && photoPath.trim().isNotEmpty) {
+          final String path = photoPath.trim();
+          final File photoFile = File(path);
 
-      // ========================================================
-      // LOCAL IMAGE
-      // ========================================================
+          if (photoFile.existsSync()) {
+            return CircleAvatar(
+              radius: radius,
+              backgroundColor: const Color(0xffede9fe),
+              backgroundImage: FileImage(photoFile),
+            );
+          }
 
-      if (photoFile.existsSync()) {
+          // Preserve support for existing asset images.
+          if (!path.contains(Platform.pathSeparator) &&
+              !path.contains(':')) {
+            return CircleAvatar(
+              radius: radius,
+              backgroundColor: const Color(0xffede9fe),
+              backgroundImage: AssetImage(path),
+            );
+          }
+        }
+
+        // Default avatar when no photo is available.
+        final String firstLetter =
+        profile.name.trim().isNotEmpty
+            ? profile.name.trim()[0].toUpperCase()
+            : 'S';
+
         return CircleAvatar(
           radius: radius,
-          backgroundColor:
-          const Color(0xffede9fe),
-          backgroundImage:
-          FileImage(photoFile),
+          backgroundColor: const Color(0xffede9fe),
+          child: Text(
+            firstLetter,
+            style: TextStyle(
+              fontSize: radius * 0.75,
+              fontWeight: FontWeight.bold,
+              color: Colors.deepPurple,
+            ),
+          ),
         );
-      }
-
-      // ========================================================
-      // ASSET IMAGE
-      // ========================================================
-
-      return CircleAvatar(
-        radius: radius,
-        backgroundColor:
-        const Color(0xffede9fe),
-        backgroundImage:
-        AssetImage(photoPath),
-      );
-    }
-
-    // ==========================================================
-    // DEFAULT LETTER AVATAR
-    // ==========================================================
-
-    final String firstLetter =
-    profile.name.trim().isNotEmpty
-        ? profile.name
-        .trim()[0]
-        .toUpperCase()
-        : 'S';
-
-    return CircleAvatar(
-      radius: radius,
-      backgroundColor:
-      const Color(0xffede9fe),
-      child: Text(
-        firstLetter,
-        style: TextStyle(
-          fontSize:
-          radius * 0.75,
-          fontWeight:
-          FontWeight.bold,
-          color:
-          Colors.deepPurple,
-        ),
-      ),
+      },
     );
   }
 }

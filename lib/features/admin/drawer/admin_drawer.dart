@@ -273,7 +273,7 @@ class AdminDrawer extends StatelessWidget {
                     Icons.confirmation_number_outlined,
 
                     title:
-                    'Raise Token',
+                    'Raised Token',
 
                     onTap: () {
 
