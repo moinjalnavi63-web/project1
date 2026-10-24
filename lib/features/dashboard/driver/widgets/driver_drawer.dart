@@ -3,12 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-import '../pages/driver_dashboard_screen.dart';
-import '../pages/driver_profile_screen.dart';
 import '../pages/driver_profile_data.dart';
-import 'driver_assigned_bus_screen.dart';
-import 'driver_assigned_route_screen.dart';
 import '../../../authentication/presentation/pages/login_screen.dart';
+import '../../../settings/user_settings_screen.dart';
 
 class DriverDrawer extends StatelessWidget {
   final int selectedIndex;
@@ -49,6 +46,7 @@ class DriverDrawer extends StatelessWidget {
             ),
             child: Column(
               children: [
+                // DRIVER PROFILE HEADER
                 DrawerHeader(
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
@@ -63,9 +61,8 @@ class DriverDrawer extends StatelessWidget {
                       CircleAvatar(
                         radius: 35,
                         backgroundColor: Colors.white,
-                        backgroundImage: hasPhoto
-                            ? FileImage(File(photoPath))
-                            : null,
+                        backgroundImage:
+                        hasPhoto ? FileImage(File(photoPath)) : null,
                         child: hasPhoto
                             ? null
                             : const Icon(
@@ -123,11 +120,11 @@ class DriverDrawer extends StatelessWidget {
                   ),
                 ),
 
+                // DRIVER MENU
                 Expanded(
                   child: ListView(
                     padding: EdgeInsets.zero,
                     children: [
-
                       DriverDrawerTile(
                         title: 'Driver Profile',
                         icon: Icons.person_outline,
@@ -158,12 +155,34 @@ class DriverDrawer extends StatelessWidget {
                         selected: selectedIndex == 5,
                         onTap: () => onItemSelected(5),
                       ),
+
+                      // SETTINGS
+                      DriverDrawerTile(
+                        title: 'Settings',
+                        icon: Icons.settings_outlined,
+                        selected: false,
+                        onTap: () {
+                          Navigator.pop(context);
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const UserSettingsScreen(
+                                role: SettingsUserRole.driver,
+                                email: '',
+                                phone: '',
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ),
 
                 const Divider(),
 
+                // LOGOUT
                 DriverDrawerTile(
                   title: 'Logout',
                   icon: Icons.logout,
@@ -225,8 +244,7 @@ class DriverDrawerTile extends StatelessWidget {
         title: Text(
           title,
           style: TextStyle(
-            fontWeight:
-            selected ? FontWeight.bold : FontWeight.w600,
+            fontWeight: selected ? FontWeight.bold : FontWeight.w600,
           ),
         ),
         trailing: const Icon(Icons.chevron_right),

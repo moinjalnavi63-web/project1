@@ -1,9 +1,11 @@
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 
 import '../../../authentication/presentation/pages/login_screen.dart';
 import '../../../dashboard/faculty/widgets/faculty_profile_photo.dart';
+import '../../../settings/user_settings_screen.dart';
 
 class FacultyDrawer extends StatelessWidget {
   final int selectedIndex;
@@ -136,40 +138,85 @@ class FacultyDrawer extends StatelessWidget {
             ),
           ),
 
+          // PROFILE
           _drawerItem(
             icon: Icons.person_outline,
             title: 'Profile',
             index: 1,
           ),
+
+          // BUS DIRECTORY
           _drawerItem(
             icon: Icons.directions_bus_outlined,
             title: 'Bus Directory',
             index: 2,
           ),
+
+          // SEAT ALLOCATOR
           _drawerItem(
             icon: Icons.event_seat_outlined,
             title: 'Seat Allocator',
             index: 3,
           ),
+
+          // BUS GROUP
           _drawerItem(
             icon: Icons.groups_outlined,
             title: 'Bus Group',
             index: 4,
           ),
+
+          // LIVE GPS TRACKING
           _drawerItem(
             icon: Icons.location_on_outlined,
             title: 'Live GPS Tracking',
             index: 5,
           ),
+
+          // RAISE TOKEN
           _drawerItem(
             icon: Icons.confirmation_number_outlined,
             title: 'Raise Token',
             index: 6,
           ),
 
+          // SETTINGS
+          ListTile(
+            leading: const Icon(
+              Icons.settings_outlined,
+              color: Colors.black87,
+            ),
+            title: const Text(
+              'Settings',
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Colors.black87,
+              ),
+            ),
+            trailing: const Icon(
+              Icons.chevron_right,
+              size: 20,
+            ),
+            onTap: () {
+              Navigator.pop(context);
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const UserSettingsScreen(
+                    role: SettingsUserRole.faculty,
+                    email: '',
+                    phone: '',
+                  ),
+                ),
+              );
+            },
+          ),
+
           const Spacer(),
           const Divider(),
 
+          // LOGOUT
           ListTile(
             leading: const Icon(
               Icons.logout,
@@ -184,6 +231,7 @@ class FacultyDrawer extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context);
+
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(
                   builder: (_) => const LoginScreen(),
@@ -199,6 +247,7 @@ class FacultyDrawer extends StatelessWidget {
     );
   }
 
+  // DRAWER MENU ITEM
   Widget _drawerItem({
     required IconData icon,
     required String title,
