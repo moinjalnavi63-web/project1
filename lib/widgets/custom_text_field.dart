@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 class CustomTextField extends StatelessWidget {
@@ -14,6 +15,11 @@ class CustomTextField extends StatelessWidget {
   final void Function(String)? onChanged;
   final VoidCallback? onTap;
 
+  // Added for keyboard navigation.
+  final FocusNode? focusNode;
+  final TextInputAction? textInputAction;
+  final void Function(String)? onFieldSubmitted;
+
   const CustomTextField({
     super.key,
     required this.controller,
@@ -28,6 +34,11 @@ class CustomTextField extends StatelessWidget {
     this.validator,
     this.onChanged,
     this.onTap,
+
+    // Added optional parameters.
+    this.focusNode,
+    this.textInputAction,
+    this.onFieldSubmitted,
   });
 
   @override
@@ -36,7 +47,10 @@ class CustomTextField extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 18),
       child: TextFormField(
         controller: controller,
+        focusNode: focusNode,
         keyboardType: keyboardType,
+        textInputAction: textInputAction,
+        onFieldSubmitted: onFieldSubmitted,
         obscureText: obscureText,
         validator: validator,
         onChanged: onChanged,
@@ -50,34 +64,27 @@ class CustomTextField extends StatelessWidget {
         decoration: InputDecoration(
           labelText: label,
           hintText: hintText,
-
           prefixIcon: Icon(
             prefixIcon,
             color: Colors.indigo,
           ),
-
           suffixIcon: suffixIcon,
-
           filled: true,
-          fillColor: Colors.white.withOpacity(0.95),
-
+          fillColor: Colors.white.withValues(alpha: 0.95),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 20,
             vertical: 18,
           ),
-
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide.none,
           ),
-
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide(
               color: Colors.grey.shade300,
             ),
           ),
-
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(18),
             borderSide: const BorderSide(
@@ -85,7 +92,6 @@ class CustomTextField extends StatelessWidget {
               width: 2,
             ),
           ),
-
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(18),
             borderSide: const BorderSide(
@@ -93,7 +99,6 @@ class CustomTextField extends StatelessWidget {
               width: 2,
             ),
           ),
-
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(18),
             borderSide: const BorderSide(

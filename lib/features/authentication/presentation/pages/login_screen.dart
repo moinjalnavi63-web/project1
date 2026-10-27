@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'register_screen.dart';
 import '../widgets/login_form.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -11,8 +12,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
+  late final AnimationController _animationController;
+  late final Animation<double> _fadeAnimation;
 
   final formKey = GlobalKey<FormState>();
 
@@ -44,84 +45,84 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
+  void _openRegisterPage() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const RegisterScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
       ),
-
       body: Container(
         width: double.infinity,
+        height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xffd1fae5),
-              Color(0xffe0e7ff),
-              Color(0xffcffafe),
+              Color(0xFFD1FAE5),
+              Color(0xFFE0E7FF),
+              Color(0xFFCFFAFE),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
         ),
-
         child: SafeArea(
           child: FadeTransition(
             opacity: _fadeAnimation,
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
-
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   const SizedBox(height: 20),
-
                   const Text(
-                    "Welcome Back",
+                    'Welcome Back',
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
+                      color: Color(0xFF172033),
                     ),
                   ),
-
                   const SizedBox(height: 8),
-
-
                   Text(
-                    "Login to AssistBus",
+                    'Login to AssistBus',
                     style: TextStyle(
                       fontSize: 15,
                       color: Colors.grey.shade700,
                     ),
                   ),
-
-
                   const SizedBox(height: 30),
-
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(.90),
+                      color: Colors.white.withValues(alpha: 0.90),
                       borderRadius: BorderRadius.circular(25),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(.08),
+                          color: Colors.black.withValues(alpha: 0.08),
                           blurRadius: 20,
                           offset: const Offset(0, 10),
                         ),
                       ],
                     ),
-
                     child: LoginForm(
                       formKey: formKey,
                       emailController: emailController,
                       passwordController: passwordController,
                     ),
                   ),
+                  const SizedBox(height: 24),
+
                 ],
               ),
             ),
@@ -131,3 +132,4 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 }
+

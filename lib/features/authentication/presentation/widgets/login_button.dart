@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 class LoginButton extends StatelessWidget {
@@ -10,18 +11,40 @@ class LoginButton extends StatelessWidget {
     required this.onPressed,
   });
 
+  static const Color _blue = Color(0xFF5965F5);
+  static const Color _teal = Color(0xFF10B9A8);
+
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       width: double.infinity,
       height: 55,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [_blue, _teal],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: _blue.withValues(alpha: 0.22),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF5B5FEF),
+          backgroundColor: Colors.transparent,
+          disabledBackgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
+          disabledForegroundColor: Colors.white70,
+          shadowColor: Colors.transparent,
+          elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(30),
           ),
         ),
         child: isLoading
@@ -34,10 +57,10 @@ class LoginButton extends StatelessWidget {
           ),
         )
             : const Text(
-          "Login",
+          'Login',
           style: TextStyle(
             fontSize: 16,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
