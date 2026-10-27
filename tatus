@@ -1,0 +1,966 @@
+[1mdiff --git a/lib/features/bus_group/pages/bus_group_screen.dart b/lib/features/bus_group/pages/bus_group_screen.dart[m
+[1mnew file mode 100644[m
+[1mindex 0000000..b71a435[m
+[1m--- /dev/null[m
+[1m+++ b/lib/features/bus_group/pages/bus_group_screen.dart[m
+[36m@@ -0,0 +1,374 @@[m
+[32m+[m
+[32m+[m[32mimport 'package:flutter/material.dart';[m
+[32m+[m
+[32m+[m[32mclass BusGroupScreen extends StatefulWidget {[m
+[32m+[m[32m  final String busName;[m
+[32m+[m[32m  final String routeName;[m
+[32m+[m[32m  final String currentUserName;[m
+[32m+[m[32m  final String currentUserRole;[m
+[32m+[m
+[32m+[m[32m  const BusGroupScreen({[m
+[32m+[m[32m    super.key,[m
+[32m+[m[32m    required this.busName,[m
+[32m+[m[32m    required this.routeName,[m
+[32m+[m[32m    required this.currentUserName,[m
+[32m+[m[32m    required this.currentUserRole,[m
+[32m+[m[32m  });[m
+[32m+[m
+[32m+[m[32m  @override[m
+[32m+[m[32m  State<BusGroupScreen> createState() => _BusGroupScreenState();[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mclass _ChatMessage {[m
+[32m+[m[32m  final String sender;[m
+[32m+[m[32m  final String role;[m
+[32m+[m[32m  final String message;[m
+[32m+[m[32m  final DateTime time;[m
+[32m+[m[32m  final bool isSystem;[m
+[32m+[m
+[32m+[m[32m  const _ChatMessage({[m
+[32m+[m[32m    required this.sender,[m
+[32m+[m[32m    required this.role,[m
+[32m+[m[32m    required this.message,[m
+[32m+[m[32m    required this.time,[m
+[32m+[m[32m    this.isSystem = false,[m
+[32m+[m[32m  });[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mclass _BusGroupScreenState extends State<BusGroupScreen> {[m
+[32m+[m[32m  final TextEditingController _messageController =[m
+[32m+[m[32m  TextEditingController();[m
+[32m+[m
+[32m+[m[32m  final ScrollController _scrollController =[m
+[32m+[m[32m  ScrollController();[m
+[32m+[m
+[32m+[m[32m  late final List<_ChatMessage> _messages;[m
+[32m+[m
+[32m+[m[32m  @override[m
+[32m+[m[32m  void initState() {[m
+[32m+[m[32m    super.initState();[m
+[32m+[m
+[32m+[m[32m    final now = DateTime.now();[m
+[32m+[m
+[32m+[m[32m    _messages = [[m
+[32m+[m[32m      _ChatMessage([m
+[32m+[m[32m        sender: 'AssistBus',[m
+[32m+[m[32m        role: 'System',[m
+[32m+[m[32m        message: 'Welcome to ${widget.busName} Bus Group.',[m
+[32m+[m[32m        time: now.subtract(const Duration(minutes: 35)),[m
+[32m+[m[32m        isSystem: true,[m
+[32m+[m[32m      ),[m
+[32m+[m[32m      _ChatMessage([m
+[32m+[m[32m        sender: 'Bus Driver',[m
+[32m+[m[32m        role: 'Driver',[m
+[32m+[m[32m        message: 'Good morning! Please be ready at your pickup stops on time.',[m
+[32m+[m[32m        time: now.subtract(const Duration(minutes: 28)),[m
+[32m+[m[32m      ),[m
+[32m+[m[32m      _ChatMessage([m
+[32m+[m[32m        sender: 'Student',[m
+[32m+[m[32m        role: 'Student',[m
+[32m+[m[32m        message: 'Thank you, sir.',[m
+[32m+[m[32m        time: now.subtract(const Duration(minutes: 23)),[m
+[32m+[m[32m      ),[m
+[32m+[m[32m      _ChatMessage([m
+[32m+[m[32m        sender: 'Bus Driver',[m
+[32m+[m[32m        role: 'Driver',[m
+[32m+[m[32m        message: 'I will share an update here if there is a delay.',[m
+[32m+[m[32m        time: now.subtract(const Duration(minutes: 12)),[m
+[32m+[m[32m      ),[m
+[32m+[m[32m    ];[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  @override[m
+[32m+[m[32m  void dispose() {[m
+[32m+[m[32m    _messageController.dispose();[m
+[32m+[m[32m    _scrollController.dispose();[m
+[32m+[m[32m    super.dispose();[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  void _sendMessage() {[m
+[32m+[m[32m    final text = _messageController.text.trim();[m
+[32m+[m
+[32m+[m[32m    if (text.isEmpty) return;[m
+[32m+[m
+[32m+[m[32m    setState(() {[m
+[32m+[m[32m      _messages.add([m
+[32m+[m[32m        _ChatMessage([m
+[32m+[m[32m          sender: widget.currentUserName,[m
+[32m+[m[32m          role: widget.currentUserRole,[m
+[32m+[m[32m          message: text,[m
+[32m+[m[32m          time: DateTime.now(),[m
+[32m+[m[32m        ),[m
+[32m+[m[32m      );[m
+[32m+[m
+[32m+[m[32m      _messageController.clear();[m
+[32m+[m[32m    });[m
+[32m+[m
+[32m+[m[32m    WidgetsBinding.instance.addPostFrameCallback((_) {[m
+[32m+[m[32m      if (_scrollController.hasClients) {[m
+[32m+[m[32m        _scrollController.animateTo([m
+[32m+[m[32m          _scrollController.position.maxScrollExtent,[m
+[32m+[m[32m          duration: const Duration(milliseconds: 250),[m
+[32m+[m[32m          curve: Curves.easeOut,[m
+[32m+[m[32m        );[m
+[32m+[m[32m      }[m
+[32m+[m[32m    });[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  String _formatTime(DateTime time) {[m
+[32m+[m[32m    final hour = time.hour % 12 == 0 ? 12 : time.hour % 12;[m
+[32m+[m[32m    final minute = time.minute.toString().padLeft(2, '0');[m
+[32m+[m[32m    final period = time.hour >= 12 ? 'PM' : 'AM';[m
+[32m+[m
+[32m+[m[32m    return '$hour:$minute $period';[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  @override[m
+[32m+[m[32m  Widget build(BuildContext context) {[m
+[32m+[m[32m    const primary = Color(0xFF5B5FEF);[m
+[32m+[m[32m    const background = Color(0xFFF7F8FC);[m
+[32m+[m
+[32m+[m[32m    return Column([m
+[32m+[m[32m      children: [[m
+[32m+[m[32m        // Group information.[m
+[32m+[m[32m        Container([m
+[32m+[m[32m          width: double.infinity,[m
+[32m+[m[32m          padding: const EdgeInsets.all(16),[m
+[32m+[m[32m          decoration: const BoxDecoration([m
+[32m+[m[32m            color: Colors.white,[m
+[32m+[m[32m            border: Border([m
+[32m+[m[32m              bottom: BorderSide(color: Color(0xFFE8EAF2)),[m
+[32m+[m[32m            ),[m
+[32m+[m[32m          ),[m
+[32m+[m[32m          child: Row([m
+[32m+[m[32m            children: [[m
+[32m+[m[32m              Container([m
+[32m+[m[32m                width: 48,[m
+[32m+[m[32m                height: 48,[m
+[32m+[m[32m                decoration: BoxDecoration([m
+[32m+[m[32m                  color: primary.withValues(alpha: 0.10),[m
+[32m+[m[32m                  borderRadius: BorderRadius.circular(15),[m
+[32m+[m[32m                ),[m
+[32m+[m[32m                child: const Icon([m
+[32m+[m[32m                  Icons.directions_bus_rounded,[m
+[32m+[m[32m                  color: primary,[m
+[32m+[m[32m                  size: 27,[m
+[32m+[m[32m                ),[m
+[32m+[m[32m              ),[m
+[32m+[m[32m              const SizedBox(width: 12),[m
+[32m+[m[32m              Expanded([m
+[32m+[m[32m                child: Column([m
+[32m+[m[32m                  crossAxisAlignment: CrossAxisAlignment.start,[m
+[32m+[m[32m                  children: [[m
+[32m+[m[32m                    Text([m
+[32m+[m[32m                      widget.busName,[m
+[32m+[m[32m                      style: const TextStyle([m
+[32m+[m[32m                        fontSize: 17,[m
+[32m+[m[32m                        fontWeight: FontWeight.bold,[m
+[32m+[m[32m                      ),[m
+[32m+[m[32m                    ),[m
+[32m+[m[32m                    const SizedBox(height: 4),[m
+[32m+[m[32m                    Text([m
+[32m+[m[32m                      widget.routeName,[m
+[32m+[m[32m                      style: const TextStyle([m
+[32m+[m[32m                        color: Colors.black54,[m
+[32m+[m[32m                        fontSize: 13,[m
+[32m+[m[32m                      ),[m
+[32m+[m[32m                    ),[m
+[32m+[m[32m                  ],[m
+[32m+[m[32m                ),[m
+[32m+[m[32m              ),[m
+[32m+[m[32m              const Icon([m
+[32m+[m[32m                Icons.lock_outline_rounded,[m
+[32m+[m[32m                color: Colors.black45,[m
+[32m+[m[32m                size: 20,[m
+[32m+[m[32m              ),[m
+[32m+[m[32m            ],[m
+[32m+[m[32m          ),[m
+[32m+[m[32m        ),[m
+[32m+[m
+[32m+[m[32m        // Local demo notice.[m
+[32m+[m[32m        Container([m
+[32m+[m[32m          width: double.infinity,[m
+[32m+[m[32m          padding: const EdgeInsets.symmetric([m
+[32m+[m[32m            horizontal: 12,[m
+[32m+[m[32m            vertical: 8,[m
+[32m+[m[32m          ),[m
+[32m+[m[32m          color: const Color(0xFFFFF4D9),[m
+[32m+[m[32m          child: const Text([m
+[32m+[m[32m            'Demo mode: messages are stored only in this screen.',[m
+[32m+[m[32m            textAlign: TextAlign.center,[m
+[32m+[m[32m            style: TextStyle([m
+[32m+[m[32m              fontSize: 11,[m
+[32m+[m[32m              color: Color(0xFF795A16),[m
+[32m+[m[32m            ),[m
+[32m+[m[32m          ),[m
+[32m+[m[32m        ),[m
+[32m+[m
+[32m+[m[32m        // Messages.[m
+[32m+[m[32m        Expanded([m
+[32m+[m[32m          child: Container([m
+[32m+[m[32m            color: background,[m
+[32m+[m[32m            child: ListView.builder([m
+[32m+[m[32m              controller: _scrollController,[m
+[32m+[m[32m              padding: const EdgeInsets.all(16),[m
+[32m+[m[32m              itemCount: _messages.length,[m
+[32m+[m[32m              itemBuilder: (context, index) {[m
+[32m+[m[32m                final message = _messages[index];[m
+[32m+[m
+[32m+[m[32m                if (message.isSystem) {[m
+[32m+[m[32m                  return Padding([m
+[32m+[m[32m                    padding: const EdgeInsets.only(bottom: 16),[m
+[32m+[m[32m                    child: Center([m
+[32m+[m[32m                      child: Container([m
+[32m+[m[32m                        padding: const EdgeInsets.symmetric([m
+[32m+[m[32m                          horizontal: 14,[m
+[32m+[m[32m                          vertical: 8,[m
+[32m+[m[32m                        ),[m
+[32m+[m[32m                        decoration: BoxDecoration([m
+[32m+[m[32m                          color: const Color(0xFFE9EAF8),[m
+[32m+[m[32m                          borderRadius: BorderRadius.circular(20),[m
+[32m+[m[32m                        ),[m
+[32m+[m[32m                        child: Text([m
+[32m+[m[32m                          message.message,[m
+[32m+[m[32m                          textAlign: TextAlign.center,[m
+[32m+[m[32m                          style: const TextStyle([m
+[32m+[m[32m                            fontSize: 12,[m
+[32m+[m[32m                            color: Color(0xFF555985),[m
+[32m+[m[32m                          ),[m
+[32m+[m[32m                        ),[m
+[32m+[m[32m                      ),[m
+[32m+[m[32m                    ),[m
+[32m+[m[32m                  );[m
+[32m+[m[32m                }[m
+[32m+[m
+[32m+[m[32m                final isMe = message.sender == widget.currentUserName;[m
+[32m+[m
+[32m+[m[32m                return Align([m
+[32m+[m[32m                  alignment: isMe[m
+[32m+[m[32m                      ? Alignment.centerRight[m
+[32m+[m[32m                      : Alignment.centerLeft,[m
+[32m+[m[32m                  child: Container([m
+[32m+[m[32m                    constraints: BoxConstraints([m
+[32m+[m[32m                      maxWidth: MediaQuery.sizeOf(context).width * 0.76,[m
+[32m+[m[32m                    ),[m
+[32m+[m[32m                    margin: const EdgeInsets.only(bottom: 14),[m
+[32m+[m[32m                    padding: const EdgeInsets.fromLTRB(13, 10, 13, 8),[m
+[32m+[m[32m                    decoration: BoxDecoration([m
+[32m+[m[32m                      color: isMe ? primary : Colors.white,[m
+[32m+[m[32m                      borderRadius: BorderRadius.only([m
+[32m+[m[32m                        topLeft: const Radius.circular(16),[m
+[32m+[m[32m                        topRight: const Radius.circular(16),[m
+[32m+[m[32m                        bottomLeft: Radius.circular(isMe ? 16 : 4),[m
+[32m+[m[32m                        bottomRight: Radius.circular(isMe ? 4 : 16),[m
+[32m+[m[32m                      ),[m
+[32m+[m[32m                      boxShadow: [[m
+[32m+[m[32m                        BoxShadow([m
+[32m+[m[32m                          color: Colors.black.withValues(alpha: 0.035),[m
+[32m+[m[32m                          blurRadius: 6,[m
+[32m+[m[32m                          offset: const Offset(0, 2),[m
+[32m+[m[32m                        ),[m
+[32m+[m[32m                      ],[m
+[32m+[m[32m                    ),[m
+[32m+[m[32m                    child: Column([m
+[32m+[m[32m                      crossAxisAlignment: CrossAxisAlignment.start,[m
+[32m+[m[32m                      children: [[m
+[32m+[m[32m                        if (!isMe)[m
+[32m+[m[32m                          Padding([m
+[32m+[m[32m                            padding: const EdgeInsets.only(bottom: 5),[m
+[32m+[m[32m                            child: Text([m
+[32m+[m[32m                              '${message.sender} · ${message.role}',[m
+[32m+[m[32m                              style: const TextStyle([m
+[32m+[m[32m                                fontSize: 11,[m
+[32m+[m[32m                                fontWeight: FontWeight.bold,[m
+[32m+[m[32m                                color: primary,[m
+[32m+[m[32m                              ),[m
+[32m+[m[32m                            ),[m
+[32m+[m[32m                          ),[m
+[32m+[m[32m                        Text([m
+[32m+[m[32m                          message.message,[m
+[32m+[m[32m                          style: TextStyle([m
+[32m+[m[32m                            fontSize: 14,[m
+[32m+[m[32m                            height: 1.35,[m
+[32m+[m[32m                            color: isMe ? Colors.white : Colors.black87,[m
+[32m+[m[32m                          ),[m
+[32m+[m[32m                        ),[m
+[32m+[m[32m                        const SizedBox(height: 5),[m
+[32m+[m[32m                        Align([m
+[32m+[m[32m                          alignment: Alignment.bottomRight,[m
+[32m+[m[32m                          child: Text([m
+[32m+[m[32m                            _formatTime(message.time),[m
+[32m+[m[32m                            style: TextStyle([m
+[32m+[m[32m                              fontSize: 10,[m
+[32m+[m[32m                              color: isMe[m
+[32m+[m[32m                                  ? Colors.white70[m
+[32m+[m[32m                                  : Colors.black45,[m
+[32m+[m[32m                            ),[m
+[32m+[m[32m                          ),[m
+[32m+[m[32m                        ),[m
+[32m+[m[32m                      ],[m
+[32m+[m[32m                    ),[m
+[32m+[m[32m                  ),[m
+[32m+[m[32m                );[m
+[32m+[m[32m              },[m
+[32m+[m[32m            ),[m
+[32m+[m[32m          ),[m
+[32m+[m[32m        ),[m
+[32m+[m
+[32m+[m[32m        // Message composer.[m
+[32m+[m[32m        Container([m
+[32m+[m[32m          padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),[m
+[32m+[m[32m          decoration: const BoxDecoration([m
+[32m+[m[32m            color: Colors.white,[m
+[32m+[m[32m            border: Border([m
+[32m+[m[32m              top: BorderSide(color: Color(0xFFE8EAF2)),[m
+[32m+[m[32m            ),[m
+[32m+[m[32m          ),[m
+[32m+[m[32m          child: SafeArea([m
+[32m+[m[32m            top: false,[m
+[32m+[m[32m            child: Row([m
+[32m+[m[32m              crossAxisAlignment: CrossAxisAlignment.end,[m
+[32m+[m[32m              children: [[m
+[32m+[m[32m                Expanded([m
+[32m+[m[32m                  child: TextField([m
+[32m+[m[32m                    controller: _messageController,[m
+[32m+[m[32m                    minLines: 1,[m
+[32m+[m[32m                    maxLines: 4,[m
+[32m+[m[32m                    textCapitalization: TextCapitalization.sentences,[m
+[32m+[m[32m                    onSubmitted: (_) => _sendMessage(),[m
+[32m+[m[32m                    decoration: InputDecoration([m
+[32m+[m[32m                      hintText: 'Write a message...',[m
+[32m+[m[32m                      filled: true,[m
+[32m+[m[32m                      fillColor: background,[m
+[32m+[m[32m                      contentPadding: const EdgeInsets.symmetric([m
+[32m+[m[32m                        horizontal: 16,[m
+[32m+[m[32m                        vertical: 12,[m
+[32m+[m[32m                      ),[m
+[32m+[m[32m                      border: OutlineInputBorder([m
+[32m+[m[32m                        borderRadius: BorderRadius.circular(24),[m
+[32m+[m[32m                        borderSide: BorderSide.none,[m
+[32m+[m[32m                      ),[m
+[32m+[m[32m                    ),[m
+[32m+[m[32m                  ),[m
+[32m+[m[32m                ),[m
+[32m+[m[32m                const SizedBox(width: 8),[m
+[32m+[m[32m                Material([m
+[32m+[m[32m                  color: primary,[m
+[32m+[m[32m                  shape: const CircleBorder(),[m
+[32m+[m[32m                  child: IconButton([m
+[32m+[m[32m                    tooltip: 'Send message',[m
+[32m+[m[32m                    onPressed: _sendMessage,[m
+[32m+[m[32m                    icon: const Icon([m
+[32m+[m[32m                      Icons.send_rounded,[m
+[32m+[m[32m                      color: Colors.white,[m
+[32m+[m[32m                    ),[m
+[32m+[m[32m                  ),[m
+[32m+[m[32m                ),[m
+[32m+[m[32m              ],[m
+[32m+[m[32m            ),[m
+[32m+[m[32m          ),[m
+[32m+[m[32m        ),[m
+[32m+[m[32m      ],[m
+[32m+[m[32m    );[m
+[32m+[m[32m  }[m
+[32m+[m[32m}[m
+[1mdiff --git a/lib/features/dashboard/driver/pages/driver_dashboard_screen.dart b/lib/features/dashboard/driver/pages/driver_dashboard_screen.dart[m
+[1mindex b2f8156..2f52ec6 100644[m
+[1m--- a/lib/features/dashboard/driver/pages/driver_dashboard_screen.dart[m
+[1m+++ b/lib/features/dashboard/driver/pages/driver_dashboard_screen.dart[m
+[36m@@ -1,3 +1,4 @@[m
+[32m+[m
+ import 'package:flutter/material.dart';[m
+ [m
+ import '../widgets/driver_drawer.dart';[m
+[36m@@ -6,10 +7,12 @@[m [mimport '../widgets/driver_trip_status_card.dart';[m
+ import '../widgets/driver_announcement_card.dart';[m
+ import '../widgets/driver_assigned_bus_screen.dart';[m
+ import '../widgets/driver_assigned_route_screen.dart';[m
+[31m-import 'driver_profile_screen.dart';[m
+ [m
+[32m+[m[32mimport 'driver_profile_screen.dart';[m
+[32m+[m[32mimport 'driver_profile_data.dart';[m
+ import 'driver_gps_screen.dart';[m
+ [m
+[32m+[m[32mimport '../../../bus_group/pages/bus_group_screen.dart';[m
+ import '../../../admin/announcements/data/demo_announcements.dart';[m
+ [m
+ class DriverDashboardScreen extends StatefulWidget {[m
+[36m@@ -22,26 +25,27 @@[m [mclass DriverDashboardScreen extends StatefulWidget {[m
+ [m
+ class _DriverDashboardScreenState[m
+     extends State<DriverDashboardScreen> {[m
+[31m-[m
+   int selectedIndex = 0;[m
+ [m
+   late final List<Widget> pages;[m
+ [m
+   final List<String> titles = const [[m
+[31m-    "Welcome to KUTS",[m
+[31m-    "Driver Profile",[m
+[31m-    "Assigned Bus",[m
+[31m-    "Assigned Route",[m
+[31m-    "Bus Student Group",[m
+[31m-    "Live GPS Sharing",[m
+[31m-    "Trip Status",[m
+[31m-    "Bus Announcements",[m
+[32m+[m[32m    'Welcome to KUTS',[m
+[32m+[m[32m    'Driver Profile',[m
+[32m+[m[32m    'Assigned Bus',[m
+[32m+[m[32m    'Assigned Route',[m
+[32m+[m[32m    'Bus Student Group',[m
+[32m+[m[32m    'Live GPS Sharing',[m
+[32m+[m[32m    'Trip Status',[m
+[32m+[m[32m    'Bus Announcements',[m
+   ];[m
+ [m
+   @override[m
+   void initState() {[m
+     super.initState();[m
+ [m
+[32m+[m[32m    final driver = DriverProfileData.instance;[m
+[32m+[m
+     pages = [[m
+       _dashboardPage(),[m
+ [m
+[36m@@ -51,30 +55,49 @@[m [mclass _DriverDashboardScreenState[m
+ [m
+       const DriverAssignedRouteScreen(),[m
+ [m
+[31m-      const Center([m
+[31m-        child: Text("Bus Student Group"),[m
+[32m+[m[32m      // BUS GROUP: uses the same screen as the student dashboard.[m
+[32m+[m[32m      BusGroupScreen([m
+[32m+[m[32m        busName: driver.busNumber,[m
+[32m+[m[32m        routeName: driver.route,[m
+[32m+[m[32m        currentUserName: driver.driverName,[m
+[32m+[m[32m        currentUserRole: 'Driver',[m
+       ),[m
+ [m
+       const DriverGpsScreen(),[m
+ [m
+       const Center([m
+[31m-        child: Text("Trip Status"),[m
+[32m+[m[32m        child: Text('Trip Status'),[m
+       ),[m
+ [m
+       const Center([m
+[31m-        child: Text("Bus Announcements"),[m
+[32m+[m[32m        child: Text('Bus Announcements'),[m
+       ),[m
+     ];[m
+   }[m
+ [m
+[32m+[m[32m  // ============================================================[m
+[32m+[m[32m  // DRIVER DASHBOARD NAVIGATION[m
+[32m+[m[32m  // ============================================================[m
+[32m+[m
+   void changePage(int index) {[m
+[32m+[m[32m    if (!mounted) return;[m
+[32m+[m
+[32m+[m[32m    if (index < 0 || index >= pages.length) {[m
+[32m+[m[32m      return;[m
+[32m+[m[32m    }[m
+[32m+[m
+     setState(() {[m
+       selectedIndex = index;[m
+     });[m
+ [m
+[32m+[m[32m    // Close the drawer after selecting a menu item.[m
+     Navigator.pop(context);[m
+   }[m
+ [m
+[32m+[m[32m  // ============================================================[m
+[32m+[m[32m  // ANNOUNCEMENT SEARCH[m
+[32m+[m[32m  // ============================================================[m
+[32m+[m
+   void openSearch() {[m
+     showAnnouncementSearch([m
+       context,[m
+[36m@@ -82,6 +105,10 @@[m [mclass _DriverDashboardScreenState[m
+     );[m
+   }[m
+ [m
+[32m+[m[32m  // ============================================================[m
+[32m+[m[32m  // ANNOUNCEMENT NOTIFICATIONS[m
+[32m+[m[32m  // ============================================================[m
+[32m+[m
+   void openNotifications() {[m
+     showAnnouncementNotifications([m
+       context,[m
+[36m@@ -89,16 +116,18 @@[m [mclass _DriverDashboardScreenState[m
+     );[m
+   }[m
+ [m
+[32m+[m[32m  // ============================================================[m
+[32m+[m[32m  // DRIVER HOME[m
+[32m+[m[32m  // ============================================================[m
+[32m+[m
+   Widget _dashboardPage() {[m
+     return SizedBox.expand([m
+       child: Container([m
+         width: double.infinity,[m
+[31m-[m
+         decoration: const BoxDecoration([m
+           gradient: LinearGradient([m
+             begin: Alignment.topLeft,[m
+             end: Alignment.bottomRight,[m
+[31m-[m
+             colors: [[m
+               Color(0xFFD1FAE5),[m
+               Color(0xFFE0E7FF),[m
+[36m@@ -106,33 +135,22 @@[m [mclass _DriverDashboardScreenState[m
+             ],[m
+           ),[m
+         ),[m
+[31m-[m
+         child: SafeArea([m
+           child: SingleChildScrollView([m
+[31m-            padding:[m
+[31m-            const EdgeInsets.all(18),[m
+[31m-[m
+[32m+[m[32m            padding: const EdgeInsets.all(18),[m
+             child: Column([m
+[31m-              crossAxisAlignment:[m
+[31m-              CrossAxisAlignment.start,[m
+[31m-[m
+[32m+[m[32m              crossAxisAlignment: CrossAxisAlignment.start,[m
+               children: const [[m
+                 SizedBox(height: 10),[m
+[31m-[m
+                 Text([m
+[31m-                  "Admin Announcements",[m
+[31m-[m
+[32m+[m[32m                  'Admin Announcements',[m
+                   style: TextStyle([m
+                     fontSize: 22,[m
+[31m-                    fontWeight:[m
+[31m-                    FontWeight.bold,[m
+[32m+[m[32m                    fontWeight: FontWeight.bold,[m
+                   ),[m
+                 ),[m
+[31m-[m
+                 SizedBox(height: 15),[m
+[31m-[m
+                 DriverAnnouncementCard(),[m
+[31m-[m
+                 SizedBox(height: 30),[m
+               ],[m
+             ),[m
+[36m@@ -142,16 +160,15 @@[m [mclass _DriverDashboardScreenState[m
+     );[m
+   }[m
+ [m
+[32m+[m[32m  // ============================================================[m
+[32m+[m[32m  // BUILD[m
+[32m+[m[32m  // ============================================================[m
+[32m+[m
+   @override[m
+   Widget build(BuildContext context) {[m
+[31m-    final driverAnnouncements =[m
+[31m-    announcementsForRole([m
+[31m-      'driver',[m
+[31m-    );[m
+[32m+[m[32m    final driverAnnouncements = announcementsForRole('driver');[m
+ [m
+[31m-    final unread =[m
+[31m-    AnnouncementInteractionStore[m
+[31m-        .unreadCount([m
+[32m+[m[32m    final unread = AnnouncementInteractionStore.unreadCount([m
+       driverAnnouncements,[m
+     );[m
+ [m
+[36m@@ -163,71 +180,47 @@[m [mclass _DriverDashboardScreenState[m
+ [m
+       appBar: AppBar([m
+         elevation: 0,[m
+[31m-[m
+[31m-        backgroundColor:[m
+[31m-        Colors.transparent,[m
+[31m-[m
+[32m+[m[32m        backgroundColor: Colors.transparent,[m
+         centerTitle: true,[m
+[31m-[m
+         title: Text([m
+           titles[selectedIndex],[m
+[31m-[m
+           style: const TextStyle([m
+[31m-            fontWeight:[m
+[31m-            FontWeight.bold,[m
+[32m+[m[32m            fontWeight: FontWeight.bold,[m
+           ),[m
+         ),[m
+[31m-[m
+         actions: [[m
+           IconButton([m
+[32m+[m[32m            tooltip: 'Search announcements',[m
+             onPressed: openSearch,[m
+[31m-[m
+[31m-            icon: const Icon([m
+[31m-              Icons.search,[m
+[31m-            ),[m
+[32m+[m[32m            icon: const Icon(Icons.search),[m
+           ),[m
+ [m
+           Stack([m
+             children: [[m
+               IconButton([m
+[31m-                onPressed:[m
+[31m-                openNotifications,[m
+[31m-[m
+[31m-                icon: const Icon([m
+[31m-                  Icons.notifications_none,[m
+[31m-                ),[m
+[32m+[m[32m                tooltip: 'Notifications',[m
+[32m+[m[32m                onPressed: openNotifications,[m
+[32m+[m[32m                icon: const Icon(Icons.notifications_none),[m
+               ),[m
+ [m
+               if (unread > 0)[m
+                 Positioned([m
+                   right: 7,[m
+                   top: 7,[m
+[31m-[m
+                   child: Container([m
+                     width: 17,[m
+                     height: 17,[m
+[31m-[m
+[31m-                    alignment:[m
+[31m-                    Alignment.center,[m
+[31m-[m
+[31m-                    decoration:[m
+[31m-                    const BoxDecoration([m
+[32m+[m[32m                    alignment: Alignment.center,[m
+[32m+[m[32m                    decoration: const BoxDecoration([m
+                       color: Colors.red,[m
+[31m-                      shape:[m
+[31m-                      BoxShape.circle,[m
+[32m+[m[32m                      shape: BoxShape.circle,[m
+                     ),[m
+[31m-[m
+                     child: Text([m
+[31m-                      unread > 9[m
+[31m-                          ? '9+'[m
+[31m-                          : '$unread',[m
+[31m-[m
+[31m-                      style:[m
+[31m-                      const TextStyle([m
+[32m+[m[32m                      unread > 9 ? '9+' : '$unread',[m
+[32m+[m[32m                      style: const TextStyle([m
+                         color: Colors.white,[m
+                         fontSize: 9,[m
+[31m-                        fontWeight:[m
+[31m-                        FontWeight.bold,[m
+[32m+[m[32m                        fontWeight: FontWeight.bold,[m
+                       ),[m
+                     ),[m
+                   ),[m
+[36m@@ -238,14 +231,12 @@[m [mclass _DriverDashboardScreenState[m
+       ),[m
+ [m
+       body: AnimatedSwitcher([m
+[31m-        duration:[m
+[31m-        const Duration([m
+[31m-          milliseconds: 300,[m
+[32m+[m[32m        duration: const Duration(milliseconds: 300),[m
+[32m+[m[32m        child: KeyedSubtree([m
+[32m+[m[32m          key: ValueKey<int>(selectedIndex),[m
+[32m+[m[32m          child: pages[selectedIndex],[m
+         ),[m
+[31m-[m
+[31m-        child:[m
+[31m-        pages[selectedIndex],[m
+       ),[m
+     );[m
+   }[m
+[31m-}[m
+\ No newline at end of file[m
+[32m+[m[32m}[m
+[1mdiff --git a/lib/features/dashboard/student/pages/student_dashboard_screen.dart b/lib/features/dashboard/student/pages/student_dashboard_screen.dart[m
+[1mindex 11d1699..7967504 100644[m
+[1m--- a/lib/features/dashboard/student/pages/student_dashboard_screen.dart[m
+[1m+++ b/lib/features/dashboard/student/pages/student_dashboard_screen.dart[m
+[36m@@ -1,3 +1,4 @@[m
+[32m+[m
+ import 'package:flutter/material.dart';[m
+ [m
+ import '../widgets/student_drawer.dart';[m
+[36m@@ -8,6 +9,7 @@[m [mimport '../../../profile/student/pages/student_profile_screen.dart';[m
+ import '../../../bus_directory/pages/bus_directory_screen.dart';[m
+ import '../../../raise_token/screens/raise_token_screen.dart';[m
+ import '../../../gps_tracking/pages/live_gps_tracking_screen.dart';[m
+[32m+[m[32mimport '../../../bus_group/pages/bus_group_screen.dart';[m
+ [m
+ import '../../../admin/announcements/data/demo_announcements.dart';[m
+ [m
+[36m@@ -19,60 +21,87 @@[m [mclass StudentDashboardScreen extends StatefulWidget {[m
+       _StudentDashboardScreenState();[m
+ }[m
+ [m
+[31m-class _StudentDashboardScreenState[m
+[31m-    extends State<StudentDashboardScreen> {[m
+[31m-[m
+[32m+[m[32mclass _StudentDashboardScreenState extends State<StudentDashboardScreen> {[m
+   int selectedIndex = 0;[m
+ [m
+[31m-  final List<Widget> pages = const [[m
+[31m-    StudentHome(),[m
+[31m-    StudentProfileScreen(),[m
+[31m-    BusDirectoryScreen(),[m
+[31m-    SeatAllocatorScreen(),[m
+[31m-    Center([m
+[31m-      child: Text("Bus Group"),[m
+[32m+[m[32m  // ============================================================[m
+[32m+[m[32m  // STUDENT DASHBOARD PAGES[m
+[32m+[m[32m  // ============================================================[m
+[32m+[m
+[32m+[m[32m  late final List<Widget> pages = [[m
+[32m+[m[32m    const StudentHome(),[m
+[32m+[m
+[32m+[m[32m    const StudentProfileScreen(),[m
+[32m+[m
+[32m+[m[32m    const BusDirectoryScreen(),[m
+[32m+[m
+[32m+[m[32m    const SeatAllocatorScreen(),[m
+[32m+[m
+[32m+[m[32m    // BUS GROUP CHAT[m
+[32m+[m[32m    const BusGroupScreen([m
+[32m+[m[32m      busName: 'Bus 01',[m
+[32m+[m[32m      routeName: 'Hospet Route',[m
+[32m+[m[32m      currentUserName: 'Mohammed Moinuddin',[m
+[32m+[m[32m      currentUserRole: 'Student',[m
+     ),[m
+[31m-    LiveGpsTrackingScreen(),[m
+[31m-    RaiseTokenScreen(),[m
+[31m-    Center([m
+[31m-      child: Text("Announcements"),[m
+[32m+[m
+[32m+[m[32m    const LiveGpsTrackingScreen(),[m
+[32m+[m
+[32m+[m[32m    const RaiseTokenScreen(),[m
+[32m+[m
+[32m+[m[32m    const Center([m
+[32m+[m[32m      child: Text('Announcements'),[m
+     ),[m
+[31m-    Center([m
+[31m-      child: Text("Student Directory"),[m
+[32m+[m
+[32m+[m[32m    const Center([m
+[32m+[m[32m      child: Text('Student Directory'),[m
+     ),[m
+   ];[m
+ [m
+[32m+[m[32m  // ============================================================[m
+[32m+[m[32m  // PAGE TITLES[m
+[32m+[m[32m  // ============================================================[m
+[32m+[m
+   final List<String> titles = const [[m
+[31m-    "Welcome to KUTS",[m
+[31m-    "Profile",[m
+[31m-    "Bus Directory",[m
+[31m-    "Seat Allocator",[m
+[31m-    "Bus Group",[m
+[31m-    "Live GPS Tracking",[m
+[31m-    "Raise Token",[m
+[31m-    "Announcements",[m
+[31m-    "Student Directory",[m
+[32m+[m[32m    'Welcome to KUTS',[m
+[32m+[m[32m    'Profile',[m
+[32m+[m[32m    'Bus Directory',[m
+[32m+[m[32m    'Seat Allocator',[m
+[32m+[m[32m    'Bus Group',[m
+[32m+[m[32m    'Live GPS Tracking',[m
+[32m+[m[32m    'Raise Token',[m
+[32m+[m[32m    'Announcements',[m
+[32m+[m[32m    'Student Directory',[m
+   ];[m
+ [m
+[32m+[m[32m  // ============================================================[m
+[32m+[m[32m  // DASHBOARD NAVIGATION[m
+[32m+[m[32m  // ============================================================[m
+[32m+[m
+   void changePage(int index) {[m
+[32m+[m[32m    if (!mounted) return;[m
+[32m+[m
+[32m+[m[32m    // Return to Student Home when the drawer back arrow is pressed.[m
+     if (index == -1) {[m
+       setState(() {[m
+[31m-        selectedIndex = -1;[m
+[32m+[m[32m        selectedIndex = 0;[m
+       });[m
+[32m+[m[32m      return;[m
+[32m+[m[32m    }[m
+ [m
+[31m-      Navigator.pop(context);[m
+[32m+[m[32m    // Prevent invalid page indexes.[m
+[32m+[m[32m    if (index < 0 || index >= pages.length) {[m
+       return;[m
+     }[m
+ [m
+[32m+[m[32m    // Change the page without pushing or popping dashboard routes.[m
+     setState(() {[m
+       selectedIndex = index;[m
+     });[m
+[31m-[m
+[31m-    Navigator.pop(context);[m
+   }[m
+ [m
+   // ============================================================[m
+[31m-  // SEARCH[m
+[32m+[m[32m  // ANNOUNCEMENT SEARCH[m
+   // ============================================================[m
+ [m
+   void openSearch() {[m
+[36m@@ -83,7 +112,7 @@[m [mclass _StudentDashboardScreenState[m
+   }[m
+ [m
+   // ============================================================[m
+[31m-  // NOTIFICATIONS[m
+[32m+[m[32m  // ANNOUNCEMENT NOTIFICATIONS[m
+   // ============================================================[m
+ [m
+   void openNotifications() {[m
+[36m@@ -93,15 +122,16 @@[m [mclass _StudentDashboardScreenState[m
+     );[m
+   }[m
+ [m
+[32m+[m[32m  // ============================================================[m
+[32m+[m[32m  // BUILD[m
+[32m+[m[32m  // ============================================================[m
+[32m+[m
+   @override[m
+   Widget build(BuildContext context) {[m
+[31m-    final List<AnnouncementData>[m
+[31m-    studentAnnouncements =[m
+[32m+[m[32m    final List<AnnouncementData> studentAnnouncements =[m
+     announcementsForRole('student');[m
+ [m
+[31m-    final int unread =[m
+[31m-    AnnouncementInteractionStore[m
+[31m-        .unreadCount([m
+[32m+[m[32m    final int unread = AnnouncementInteractionStore.unreadCount([m
+       studentAnnouncements,[m
+     );[m
+ [m
+[36m@@ -112,67 +142,46 @@[m [mclass _StudentDashboardScreenState[m
+       ),[m
+ [m
+       appBar: AppBar([m
+[31m-        title: Text([m
+[31m-          selectedIndex == -1[m
+[31m-              ? "Welcome to KUTS"[m
+[31m-              : titles[selectedIndex],[m
+[31m-        ),[m
+[31m-[m
+[32m+[m[32m        title: Text(titles[selectedIndex]),[m
+         centerTitle: true,[m
+[31m-[m
+         actions: [[m
+[32m+[m[32m          // SEARCH[m
+           IconButton([m
+[31m-            icon: const Icon([m
+[31m-              Icons.search,[m
+[31m-            ),[m
+[32m+[m[32m            tooltip: 'Search announcements',[m
+[32m+[m[32m            icon: const Icon(Icons.search),[m
+             onPressed: openSearch,[m
+           ),[m
+ [m
+[32m+[m[32m          // NOTIFICATIONS[m
+           Stack([m
+             children: [[m
+               IconButton([m
+[31m-                icon: const Icon([m
+[31m-                  Icons.notifications_none,[m
+[31m-                ),[m
+[31m-                onPressed:[m
+[31m-                openNotifications,[m
+[32m+[m[32m                tooltip: 'Notifications',[m
+[32m+[m[32m                icon: const Icon(Icons.notifications_none),[m
+[32m+[m[32m                onPressed: openNotifications,[m
+               ),[m
+ [m
+               if (unread > 0)[m
+                 Positioned([m
+                   right: 7,[m
+                   top: 7,[m
+[31m-[m
+                   child: Container([m
+[31m-                    padding:[m
+[31m-                    const EdgeInsets.all(4),[m
+[31m-[m
+[31m-                    decoration:[m
+[31m-                    const BoxDecoration([m
+[32m+[m[32m                    padding: const EdgeInsets.all(4),[m
+[32m+[m[32m                    decoration: const BoxDecoration([m
+                       color: Colors.red,[m
+                       shape: BoxShape.circle,[m
+                     ),[m
+[31m-[m
+[31m-                    constraints:[m
+[31m-                    const BoxConstraints([m
+[32m+[m[32m                    constraints: const BoxConstraints([m
+                       minWidth: 17,[m
+                       minHeight: 17,[m
+                     ),[m
+[31m-[m
+                     child: Text([m
+[31m-                      unread > 9[m
+[31m-                          ? '9+'[m
+[31m-                          : '$unread',[m
+[31m-[m
+[31m-                      textAlign:[m
+[31m-                      TextAlign.center,[m
+[31m-[m
+[31m-                      style:[m
+[31m-                      const TextStyle([m
+[32m+[m[32m                      unread > 9 ? '9+' : '$unread',[m
+[32m+[m[32m                      textAlign: TextAlign.center,[m
+[32m+[m[32m                      style: const TextStyle([m
+                         color: Colors.white,[m
+                         fontSize: 9,[m
+[31m-                        fontWeight:[m
+[31m-                        FontWeight.bold,[m
+[32m+[m[32m                        fontWeight: FontWeight.bold,[m
+                       ),[m
+                     ),[m
+                   ),[m
+[36m@@ -182,16 +191,14 @@[m [mclass _StudentDashboardScreenState[m
+         ],[m
+       ),[m
+ [m
+[32m+[m[32m      // SELECTED PAGE[m
+       body: AnimatedSwitcher([m
+[31m-        duration:[m
+[31m-        const Duration([m
+[31m-          milliseconds: 300,[m
+[32m+[m[32m        duration: const Duration(milliseconds: 300),[m
+[32m+[m[32m        child: KeyedSubtree([m
+[32m+[m[32m          key: ValueKey<int>(selectedIndex),[m
+[32m+[m[32m          child: pages[selectedIndex],[m
+         ),[m
+[31m-[m
+[31m-        child: selectedIndex == -1[m
+[31m-            ? const StudentHome()[m
+[31m-            : pages[selectedIndex],[m
+       ),[m
+     );[m
+   }[m
+[31m-}[m
+\ No newline at end of file[m
+[32m+[m[32m}[m
