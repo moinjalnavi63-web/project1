@@ -1,213 +1,166 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../widgets/register_form.dart';
-import '../../providers/register_provider.dart';
 
-class RegisterScreen extends ConsumerStatefulWidget {
-  const RegisterScreen({
-    super.key,
-  });
+import 'package:flutter/material.dart';
+
+import '../../../authentication/presentation/widgets/register_form.dart';
+
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  ConsumerState<RegisterScreen> createState() =>
-      _RegisterScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState
-    extends ConsumerState<RegisterScreen>
+class _RegisterScreenState extends State<RegisterScreen>
     with SingleTickerProviderStateMixin {
+  late final AnimationController _animationController;
+  late final Animation<double> _fadeAnimation;
 
-  late AnimationController animationController;
-
-  late Animation<double> fadeAnimation;
-
-  final formKey = GlobalKey<FormState>();
-
-  final nameController =
-  TextEditingController();
-
-  final emailController =
-  TextEditingController();
-
-  final passwordController =
-  TextEditingController();
-
-  final mobileController =
-  TextEditingController();
-
-  final usnController =
-  TextEditingController();
-
-  final idController =
-  TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController mobileController = TextEditingController();
+  final TextEditingController usnController = TextEditingController();
+  final TextEditingController idController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
 
-    animationController =
-        AnimationController(
-          vsync: this,
-          duration:
-          const Duration(milliseconds: 800),
-        );
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
 
-    fadeAnimation =
-        CurvedAnimation(
-          parent: animationController,
-          curve: Curves.easeIn,
-        );
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
 
-    animationController.forward();
+    _animationController.forward();
   }
 
   @override
   void dispose() {
-    animationController.dispose();
-
+    _animationController.dispose();
     nameController.dispose();
     emailController.dispose();
     passwordController.dispose();
     mobileController.dispose();
     usnController.dispose();
     idController.dispose();
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final registerState =
-    ref.watch(registerProvider);
-
     return Scaffold(
-      extendBodyBehindAppBar: true,
-
-      appBar: AppBar(
-        backgroundColor:
-        Colors.transparent,
-        elevation: 0,
-
-        leading: IconButton(
-          icon:
-          const Icon(
-            Icons.arrow_back,
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
-
+      backgroundColor: const Color(0xFFD9F5F0),
       body: Container(
-        width:
-        double.infinity,
-
-        decoration:
-        const BoxDecoration(
-          gradient:
-          LinearGradient(
-            begin:
-            Alignment.topLeft,
-            end:
-            Alignment.bottomRight,
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
             colors: [
-              Color(0xffd1fae5),
-              Color(0xffe0e7ff),
-              Color(0xffcffafe),
+              Color(0xFFD2F5E9),
+              Color(0xFFDCE8FF),
+              Color(0xFFD2F6FF),
             ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
+        child: SafeArea(
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: SingleChildScrollView(
+              keyboardDismissBehavior:
+              ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: const EdgeInsets.fromLTRB(22, 18, 22, 28),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 460),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const SizedBox(height: 10),
 
-        child:
-        SafeArea(
-          child:
-          FadeTransition(
-            opacity:
-            fadeAnimation,
 
-            child:
-            SingleChildScrollView(
-              padding:
-              const EdgeInsets.all(24),
 
-              child:
-              Column(
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
+                      const SizedBox(height: 24),
 
-                children: [
-                  const SizedBox(
-                    height: 20,
-                  ),
-
-                  const Text(
-                    "Create Account",
-                    style:
-                    TextStyle(
-                      fontSize: 32,
-                      fontWeight:
-                      FontWeight.bold,
-                    ),
-                  ),
-
-                  const SizedBox(
-                    height: 8,
-                  ),
-
-                  Text(
-                    "Register for Kishkinda University Transport System",
-                    style:
-                    TextStyle(
-                      fontSize: 15,
-                      color:
-                      Colors.grey.shade700,
-                    ),
-                  ),
-
-                  const SizedBox(
-                    height: 30,
-                  ),
-
-                  Container(
-                    padding:
-                    const EdgeInsets.all(20),
-
-                    decoration:
-                    BoxDecoration(
-                      color:
-                      Colors.white.withOpacity(.90),
-                      borderRadius:
-                      BorderRadius.circular(25),
-                      boxShadow: [
-                        BoxShadow(
-                          color:
-                          Colors.black.withOpacity(.08),
-                          blurRadius: 20,
-                          offset:
-                          const Offset(0, 10),
+                      const Text(
+                        'Create Account',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 29,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.5,
+                          color: Color(0xFF172033),
                         ),
-                      ],
-                    ),
+                      ),
 
-                    child:
-                    RegisterForm(
-                      formKey: formKey,
-                      nameController:
-                      nameController,
-                      emailController:
-                      emailController,
-                      passwordController:
-                      passwordController,
-                      mobileController:
-                      mobileController,
-                      usnController:
-                      usnController,
-                      idController:
-                      idController,
-                    ),
+                      const SizedBox(height: 9),
+
+                      const Text(
+                        'Join Assist Bus',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF24334B),
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      Text(
+                        'Smart • Safe • Reliable Transportation',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 13,
+                          letterSpacing: 0.3,
+                          color: const Color(0xFF475569)
+                              .withValues(alpha: 0.85),
+                        ),
+                      ),
+
+                      const SizedBox(height: 28),
+
+                      // Registration form card.
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.88),
+                          borderRadius: BorderRadius.circular(25),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.9),
+                            width: 1.2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF5276A8)
+                                  .withValues(alpha: 0.10),
+                              blurRadius: 25,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: RegisterForm(
+                          nameController: nameController,
+                          emailController: emailController,
+                          passwordController: passwordController,
+                          mobileController: mobileController,
+                          usnController: usnController,
+                          idController: idController,
+                        ),
+                      ),
+
+                      const SizedBox(height: 22),
+
+
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),

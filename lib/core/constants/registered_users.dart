@@ -1,3 +1,4 @@
+
 class RegisteredUser {
   final String name;
   final String email;
@@ -6,6 +7,8 @@ class RegisteredUser {
   final String identifier;
   final String mobile;
   final String route;
+  final String busNo;
+  final String stop;
 
   const RegisteredUser({
     required this.name,
@@ -15,13 +18,15 @@ class RegisteredUser {
     required this.identifier,
     required this.mobile,
     required this.route,
+    this.busNo = '',
+    this.stop = '',
   });
 }
 
 class RegisteredUsers {
   static final List<RegisteredUser> users = [];
 
-  static void addUser({
+  static bool addUser({
     required String name,
     required String email,
     required String password,
@@ -29,10 +34,16 @@ class RegisteredUsers {
     required String identifier,
     required String mobile,
     required String route,
+    String busNo = '',
+    String stop = '',
   }) {
-    users.removeWhere(
+    final emailExists = users.any(
           (user) => user.email.toLowerCase() == email.toLowerCase(),
     );
+
+    if (emailExists) {
+      return false;
+    }
 
     users.add(
       RegisteredUser(
@@ -43,33 +54,33 @@ class RegisteredUsers {
         identifier: identifier,
         mobile: mobile,
         route: route,
+        busNo: busNo,
+        stop: stop,
       ),
     );
+
+    return true;
   }
 
   static RegisteredUser? findUser({
     required String email,
     required String password,
   }) {
-    try {
-      return users.firstWhere(
-            (user) =>
-        user.email.toLowerCase() == email.toLowerCase() &&
-            user.password == password,
-      );
-    } catch (_) {
-      return null;
+    for (final user in users) {
+      if (user.email.toLowerCase() == email.toLowerCase() &&
+          user.password == password) {
+        return user;
+      }
     }
+    return null;
   }
 
   static RegisteredUser? findByEmail(String email) {
-    try {
-      return users.firstWhere(
-            (user) =>
-        user.email.toLowerCase() == email.toLowerCase(),
-      );
-    } catch (_) {
-      return null;
+    for (final user in users) {
+      if (user.email.toLowerCase() == email.toLowerCase()) {
+        return user;
+      }
     }
+    return null;
   }
 }

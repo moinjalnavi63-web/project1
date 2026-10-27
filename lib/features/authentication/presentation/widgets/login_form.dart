@@ -1,24 +1,20 @@
+
 import 'package:flutter/material.dart';
 
 import '../../../admin/dashboard/pages/admin_dashboard_screen.dart';
-
 import '../../../../widgets/custom_text_field.dart';
 import '../../../../utils/validators.dart';
-
 import '../../../dashboard/student/pages/student_dashboard_screen.dart';
 import '../../../dashboard/driver/pages/driver_dashboard_screen.dart';
 import '../../../dashboard/faculty/pages/faculty_dashboard_screen.dart';
-
 import '../../../../core/constants/demo_users.dart';
 import '../../../../core/constants/registered_users.dart';
-
 import 'login_button.dart';
 import 'google_login_button.dart';
 import 'auth_footer.dart';
 
 class LoginForm extends StatefulWidget {
   final GlobalKey<FormState> formKey;
-
   final TextEditingController emailController;
   final TextEditingController passwordController;
 
@@ -30,53 +26,50 @@ class LoginForm extends StatefulWidget {
   });
 
   @override
-  State<LoginForm> createState() =>
-      _LoginFormState();
+  State<LoginForm> createState() => _LoginFormState();
 }
 
-class _LoginFormState
-    extends State<LoginForm> {
-
+class _LoginFormState extends State<LoginForm> {
   bool obscurePassword = true;
   bool isLoading = false;
 
-  // ==========================================================
-  // LOGIN
-  // ==========================================================
+  final FocusNode emailFocusNode = FocusNode();
+  final FocusNode passwordFocusNode = FocusNode();
+
+  // Front-end demo data.
+  // Later, replace this list with approved institutions from your backend.
+  final List<String> institutions = [
+    'Kishkinda University',
+    'Sample College A (Demo)',
+    'Sample University B (Demo)',
+  ];
+
+  String? selectedInstitution;
+
+  @override
+  void dispose() {
+    emailFocusNode.dispose();
+    passwordFocusNode.dispose();
+    super.dispose();
+  }
 
   Future<void> login() async {
-    if (!widget.formKey.currentState!.validate()) {
-      return;
-    }
+    if (!widget.formKey.currentState!.validate()) return;
 
     setState(() {
       isLoading = true;
     });
 
-    await Future.delayed(
-      const Duration(seconds: 1),
-    );
+    await Future.delayed(const Duration(seconds: 1));
 
     if (!mounted) return;
 
-    final email =
-    widget.emailController.text
-        .trim()
-        .toLowerCase();
+    final email = widget.emailController.text.trim().toLowerCase();
+    final password = widget.passwordController.text.trim();
 
-    final password =
-    widget.passwordController.text.trim();
-
-    // ========================================================
-    // DEMO ADMIN
-    // ========================================================
-
-    if (email ==
-        DemoUsers.adminEmail
-            .trim()
-            .toLowerCase() &&
+    // Demo admin
+    if (email == DemoUsers.adminEmail.trim().toLowerCase() &&
         password == DemoUsers.adminPassword) {
-
       setState(() {
         isLoading = false;
       });
@@ -84,24 +77,15 @@ class _LoginFormState
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) =>
-          const AdminDashboardScreen(),
+          builder: (_) => const AdminDashboardScreen(),
         ),
       );
-
       return;
     }
 
-    // ========================================================
-    // DEMO STUDENT
-    // ========================================================
-
-    if (email ==
-        DemoUsers.studentEmail
-            .trim()
-            .toLowerCase() &&
+    // Demo student
+    if (email == DemoUsers.studentEmail.trim().toLowerCase() &&
         password == DemoUsers.studentPassword) {
-
       setState(() {
         isLoading = false;
       });
@@ -109,24 +93,15 @@ class _LoginFormState
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) =>
-          const StudentDashboardScreen(),
+          builder: (_) => const StudentDashboardScreen(),
         ),
       );
-
       return;
     }
 
-    // ========================================================
-    // DEMO DRIVER
-    // ========================================================
-
-    if (email ==
-        DemoUsers.driverEmail
-            .trim()
-            .toLowerCase() &&
+    // Demo driver
+    if (email == DemoUsers.driverEmail.trim().toLowerCase() &&
         password == DemoUsers.driverPassword) {
-
       setState(() {
         isLoading = false;
       });
@@ -134,85 +109,52 @@ class _LoginFormState
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) =>
-          const DriverDashboardScreen(),
+          builder: (_) => const DriverDashboardScreen(),
         ),
       );
-
       return;
     }
 
-    // ========================================================
-    // REGISTERED USER
-    // ========================================================
-
-    final registeredUser =
-    RegisteredUsers.findUser(
+    final registeredUser = RegisteredUsers.findUser(
       email: email,
       password: password,
     );
 
     if (registeredUser != null) {
-
       setState(() {
         isLoading = false;
       });
 
-      // ======================================================
-      // STUDENT
-      // ======================================================
-
       if (registeredUser.role == "Student") {
-
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) =>
-            const StudentDashboardScreen(),
+            builder: (_) => const StudentDashboardScreen(),
           ),
         );
-
         return;
       }
-
-      // ======================================================
-      // DRIVER
-      // ======================================================
 
       if (registeredUser.role == "Driver") {
-
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) =>
-            const DriverDashboardScreen(),
+            builder: (_) => const DriverDashboardScreen(),
           ),
         );
-
         return;
       }
 
-      // ======================================================
-      // FACULTY
-      // ======================================================
-
       if (registeredUser.role == "Faculty") {
-
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) =>
-            const FacultyDashboardScreen(),
+            builder: (_) => const FacultyDashboardScreen(),
           ),
         );
-
         return;
       }
     }
-
-    // ========================================================
-    // INVALID LOGIN
-    // ========================================================
 
     setState(() {
       isLoading = false;
@@ -221,68 +163,109 @@ class _LoginFormState
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         backgroundColor: Colors.red,
-        content: Text(
-          "Invalid email or password",
-        ),
+        content: Text("Invalid email or password"),
       ),
     );
   }
-
-  // ==========================================================
-  // BUILD
-  // ==========================================================
 
   @override
   Widget build(BuildContext context) {
     return Form(
       key: widget.formKey,
-
       child: Column(
         children: [
+          // University / College dropdown
+          DropdownButtonFormField<String>(
+            initialValue: selectedInstitution,
+            isExpanded: true,
+            decoration: InputDecoration(
+              labelText: 'University / College',
+              hintText: 'Select your institution',
+              prefixIcon: const Icon(
+                Icons.account_balance_outlined,
+                color: Colors.indigo,
+              ),
+              filled: true,
+              fillColor: Colors.white.withValues(alpha: 0.95),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 18,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18),
+                borderSide: BorderSide(
+                  color: Colors.grey.shade300,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18),
+                borderSide: const BorderSide(
+                  color: Colors.indigo,
+                  width: 2,
+                ),
+              ),
+            ),
+            items: institutions.map((institution) {
+              return DropdownMenuItem<String>(
+                value: institution,
+                child: Text(
+                  institution,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                selectedInstitution = value;
+              });
+            },
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please select your university or college';
+              }
+              return null;
+            },
+          ),
 
+          const SizedBox(height: 18),
+
+          // Email field
           CustomTextField(
-            controller:
-            widget.emailController,
-
-            label:
-            "Email Address",
-
-            hintText:
-            "Enter your email",
-
-            prefixIcon:
-            Icons.email_outlined,
-
-            keyboardType:
-            TextInputType.emailAddress,
-
-            validator:
-            Validators.validateEmail,
+            controller: widget.emailController,
+            label: "Email Address",
+            hintText: "Enter your email",
+            prefixIcon: Icons.email_outlined,
+            keyboardType: TextInputType.emailAddress,
+            validator: Validators.validateEmail,
+            focusNode: emailFocusNode,
+            textInputAction: TextInputAction.next,
+            onFieldSubmitted: (_) {
+              FocusScope.of(context).requestFocus(passwordFocusNode);
+            },
           ),
 
           const SizedBox(height: 16),
 
+          // Password field
           CustomTextField(
-            controller:
-            widget.passwordController,
-
-            label:
-            "Password",
-
-            hintText:
-            "Enter your password",
-
-            prefixIcon:
-            Icons.lock_outline,
-
-            obscureText:
-            obscurePassword,
-
-            validator:
-            Validators.validatePassword,
-
-            suffixIcon:
-            IconButton(
+            controller: widget.passwordController,
+            label: "Password",
+            hintText: "Enter your password",
+            prefixIcon: Icons.lock_outline,
+            obscureText: obscurePassword,
+            validator: Validators.validatePassword,
+            focusNode: passwordFocusNode,
+            textInputAction: TextInputAction.done,
+            onFieldSubmitted: (_) {
+              if (!isLoading) {
+                login();
+              }
+            },
+            suffixIcon: IconButton(
               icon: Icon(
                 obscurePassword
                     ? Icons.visibility_off
@@ -290,8 +273,7 @@ class _LoginFormState
               ),
               onPressed: () {
                 setState(() {
-                  obscurePassword =
-                  !obscurePassword;
+                  obscurePassword = !obscurePassword;
                 });
               },
             ),
@@ -300,46 +282,30 @@ class _LoginFormState
           const SizedBox(height: 8),
 
           Align(
-            alignment:
-            Alignment.centerRight,
-
+            alignment: Alignment.centerRight,
             child: TextButton(
               onPressed: () {},
-
-              child: const Text(
-                "Forgot Password?",
-              ),
+              child: const Text("Forgot Password?"),
             ),
           ),
 
           const SizedBox(height: 10),
 
           LoginButton(
-            isLoading:
-            isLoading,
-            onPressed:
-            login,
+            isLoading: isLoading,
+            onPressed: login,
           ),
 
           const SizedBox(height: 20),
 
           const Row(
             children: [
-              Expanded(
-                child: Divider(),
-              ),
-
+              Expanded(child: Divider()),
               Padding(
-                padding:
-                EdgeInsets.symmetric(
-                  horizontal: 10,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 10),
                 child: Text("OR"),
               ),
-
-              Expanded(
-                child: Divider(),
-              ),
+              Expanded(child: Divider()),
             ],
           ),
 
